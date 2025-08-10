@@ -9,6 +9,8 @@
     &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-arquivos-da-aula-01">Arquivos</a>
     &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#-arquivos-da-aula-01">Exemplo</a>
+      &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-atividade">Atividade</a>
 </p>
 
