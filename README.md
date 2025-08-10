@@ -53,6 +53,18 @@ O objetivo é capacitar o aluno a projetar, implementar e otimizar soluções de
 Na **Aula 01** foi apresentado um estudo de caso para o desenvolvimento de um banco de dados de um **portal de notícias online**, com requisitos como cadastro de jornalistas, leitores, notícias, categorias, mídias, comentários, avaliações e favoritos.  
 O desafio consistiu em identificar as entidades, listar atributos e definir os relacionamentos, gerando um **Modelo Entidade-Relacionamento (MER)** e um **script SQL** para implementação.
 
+Os principais desafios incluíram:
+
+- Identificação das entidades envolvidas;
+- Definição dos atributos relevantes para cada entidade;
+- Estabelecimento dos relacionamentos entre as entidades;
+- Construção do **Modelo Entidade-Relacionamento (MER)**;
+- Elaboração do **script SQL** para implementação do banco de dados.
+
+A proposta foi focada em aplicar os conceitos teóricos na prática, visando consolidar o aprendizado sobre modelagem e criação de bancos de dados relacionais.
+
+👉 [Acessar o conteúdo completo.](https://github.com/https-shini/pw-2s/tree/main/Aula01)
+
 <!--
 
 ### 📝 Aula 02 — 
