@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://github.com/https-shini/bd-avancado" >Home</a>
   &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="https://github.com/https-shini/bd-avancado/edit/main/Aula01/Aula01.md">Aula01</a>
+  <a href="https://github.com/https-shini/bd-avancado/blob/main/Aula01/Aula01.md">Aula01</a>
   &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-como-executar">Como Executar</a>
     &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
