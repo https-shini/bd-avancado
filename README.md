@@ -63,7 +63,7 @@ Os principais desafios incluíram:
 
 A proposta foi focada em aplicar os conceitos teóricos na prática, visando consolidar o aprendizado sobre modelagem e criação de bancos de dados relacionais.
 
-👉 [Acessar o conteúdo completo.](https://github.com/https-shini/pw-2s/tree/main/Aula01)
+👉 [Acessar o conteúdo completo.](https://github.com/https-shini/bd-avancado/blob/main/Aula01/Aula01.md)
 
 <!--
 
