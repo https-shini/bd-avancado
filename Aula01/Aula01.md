@@ -1,7 +1,7 @@
 <h1 align="center">Aula 01 — Estudo de Caso: Portal de Notícias Web</h1>
 
 <p align="center">
-  <a href="https://github.com/https-shini/pw-2s" >Home</a>
+  <a href="https://github.com/https-shini/bd-avancado" >Home</a>
   &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-resumo">Resumo</a>
   &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
