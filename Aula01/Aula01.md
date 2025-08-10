@@ -9,7 +9,7 @@
     &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-arquivos-da-aula-01">Arquivos</a>
     &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#-arquivos-da-aula-01">Exemplo</a>
+  <a href="https://github.com/https-shini/bd-avancado/blob/main/Aula01/exemplo.md">Exemplo</a>
       &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#-atividade">Atividade</a>
 </p>
