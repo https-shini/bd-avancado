@@ -1,0 +1,12 @@
+CREATE TABLE pedido (
+    idpedido NUMBER PRIMARY KEY,
+    idusuario NUMBER,
+    data pedido DATE,
+    FOREIGN KEY (idusuario) REFERENCES usuario(idusuario)
+);
+
+insert into tbJornalista values (1,
+    'João da Silva'
+    'joão@gmail.com'
+    '(11)99999-9999');
+
