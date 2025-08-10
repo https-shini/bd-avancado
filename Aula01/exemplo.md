@@ -1,11 +1,24 @@
-# 🚀 Guia de Execução de Script SQL (Oracle)
+<h1 align="center">🚀 Guia de Execução de Script SQL (Oracle)</h1>
+
+<p align="center">
+  <a href="https://github.com/https-shini/bd-avancado" >Home</a>
+  &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/https-shini/bd-avancado/edit/main/Aula01/Aula01.md">Aula01</a>
+  &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#--como-executar">Como Executar</a>
+    &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#-detalhes-do-script">Detalhes do Script</a>
+    &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#-referências">Referências</a>
+</p>
+
+<br>
 
 Este repositório disponibiliza um script SQL completo para **criar** e **popular** um banco de dados simples com tabelas de **usuários** e **pedidos**.  
 
 O script foi desenvolvido como um exercício prático para a minha primeira aula de **Banco de Dados Avançado**, com o objetivo de testar de forma independente como criar e popular uma tabela simples, além de trabalhar os conceitos básicos de relacionamento entre tabelas.
 
 Ele é ideal para execução em ambiente Oracle SQL, como o **Oracle Live SQL**, facilitando a criação do banco a partir do zero.
-
 
 ---
 
