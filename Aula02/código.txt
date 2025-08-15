@@ -1,0 +1,79 @@
+create table tbCategoria(
+    idCategoria number primary key,
+    Categoria varchar2(40)
+);
+
+create table tbStatusNoticia(
+    idStatusNoticia number primary key,
+    status varchar2(40)
+);
+
+create table tbNoticia(
+    idNoticia number primary key,
+    titulo varchar2(40),
+    conteudo varchar2(40),
+    dataCriacao date,
+    idStatusNoticia number,
+    idCategoria number,
+    foreign key (idStatusNoticia) references tbStatusNoticia(idStatusNoticia),
+    foreign key (idCategoria) references tbCategoria (idCategoria)
+);
+
+create table tbJornalista(
+    idJornalista number primary key,
+    nome varchar2(40),
+    email varchar2(40),
+    telefone varchar2(40),
+    dataContratacao date
+);
+
+create table tbNoticiaJornalista(
+    idNoticiaJornalista number primary key,
+    idNoticia number,
+    idJornalista number,
+    foreign key (idNoticia) references tbNoticia(idNoticia),
+    foreign key (idJornalista) references tbJornalista (idJornalista)
+);
+
+insert into tbCategoria values (1,'Esportes Eletronicos');
+insert into tbCategoria values (2,'Politica');
+insert into tbCategoria values (3,'Culinaria');
+insert into tbCategoria values (4,'Entreterimento');
+
+select * from tbCategoria
+
+insert into tbStatusNoticia values(1,'Publicada');
+insert into tbStatusNoticia values(2,'Arquivada');
+insert into tbStatusNoticia values(3,'Culinaria');
+insert into tbStatusNoticia values(4,'Entreterimento');
+
+select * from tbStatusNoticia
+
+insert into tbNoticia values(
+    1, 'sigma', 'não sobrou nada', to_date('2025-02-02', 'yyyy-mm-dd'), 1,1
+);
+
+insert into tbNoticia values(
+    2, 'alfa', 'não sobrou nada', to_date('2025-08-14', 'yyyy-mm-dd'), 2,2
+);
+
+insert into tbNoticia values(
+    3, 'beta', 'não sobrou nada', to_date('2025-05-26', 'yyyy-mm-dd'), 3,3
+);
+
+insert into tbNoticia values(
+    4, 'omega', 'não sobrou nada', to_date('2025-03-08', 'yyyy-mm-dd'), 4,4
+);
+
+select * from tbNoticia, tbStatusNoticia, tbCategoria
+
+select to_char(dataCriacao, 'dd/MM/yyyy')"data" from tbNoticia;
+
+select idCategoria, titulo, conteudo, to_char(dataCriacao, 'dd/MM/yyyy')"data" from tbNoticia
+
+select idNoticia, noticia, idCategoria, to_char(dataCriacao, 'dd/MM/yyyy')"data"
+    from tbNoticia
+    where to_char(dataCriacao,'MM')=8
+	ORDER BY idNoticia [ASC|DESC], idNoticia [ASC|DESC];
+
+
