@@ -1,0 +1,97 @@
+create table tbCategoria(
+	idCategoria number primary key,
+    categoria varchar2(40)
+);
+
+create table tbNoticia(
+    idNoticia number primary key,
+    noticia varchar2(40),
+    idCategoria number,
+    dataCriacao date,
+    foreign key (idCategoria) references tbCategoria(idCategoria)
+);
+
+insert into tbCategoria values(1,'Esporte');
+insert into tbCategoria values(2,'Política');
+insert into tbCategoria values(3,'Famosos');
+insert into tbCategoria values(4,'Educação');
+
+insert into tbNoticia values(1,'Notícia 1',1,to_date('2025-08-06','yyyy-mm-dd'));
+insert into tbNoticia values(2,'Notícia 2',2,to_date('2025-07-16','yyyy-mm-dd'));
+insert into tbNoticia values(3,'Notícia 3',3,to_date('2025-05-12','yyyy-mm-dd'));
+insert into tbNoticia values(4,'Notícia 4',1,to_date('2025-08-22','yyyy-mm-dd'));
+insert into tbNoticia values(5,'Notícia 5',2,to_date('2025-02-04','yyyy-mm-dd'));
+insert into tbNoticia values(6,'Notícia 6',1,to_date('2025-01-14','yyyy-mm-dd'));
+insert into tbNoticia values(7,'Notícia 7',3,to_date('2025-08-14','yyyy-mm-dd'));
+insert into tbNoticia values(8,'Notícia 8',2,to_date('2025-03-22','yyyy-mm-dd'));
+insert into tbNoticia values(9,'Notícia 9',2,to_date('2024-08-22','yyyy-mm-dd'));
+insert into tbNoticia values(10,'A Notícia 9',2,to_date('2024-08-22','yyyy-mm-dd'));
+insert into tbNoticia values(11,'B Notícia 9',2,to_date('2024-08-22','yyyy-mm-dd'));
+insert into tbNoticia values(12,'C Notícia 9',2,to_date('2024-08-22','yyyy-mm-dd'));
+
+select * from tbNoticia;
+
+select to_char(datacriacao,'dd/MM/YYYY') from tbNoticia;
+
+select 
+    idNoticia,
+    noticia,
+    idCategoria,
+    to_char(datacriacao,'MM')"Mês" 
+    	from tbNoticia
+    	where to_char(datacriacao,'MM')=8
+    	order by idNoticia desc;
+
+select count(idNoticia) "qtd_noticia" from tbNoticia;
+
+select * from tbCategoria;
+
+select * from tbNoticia order by datacriacao desc;
+
+select * from tbNoticia order by datacriacao desc  FETCH FIRST 2 ROWS ONLY;
+
+select * from tbNoticia order by datacriacao asc  FETCH FIRST 1 ROWS ONLY;
+
+
+----
+
+create table tbCategoria(
+	idCategoria number primary key,
+    categoria varchar2(40)
+);
+
+create table tbNoticia(
+    idNoticia number primary key,
+    noticia varchar2(40),
+    idCategoria number,
+    dataCriacao date,
+    foreign key (idCategoria) references tbCategoria(idCategoria)
+);
+
+
+
+-- Liste a quantidade de notícias existentes por categoria. (sem inner join idCategoria e quantidade) 
+select idCategoria, count(idCategoria) from tbNoticia group by idCategoria
+
+-- Liste a quantidade de notícias existentes por categoria. (com inner join categoria e quantidade) 
+select c.categoria, count(n.idCategoria) "quantidade"
+    from tbNoticia n
+    inner join tbCategoria c
+    on n.idCategoria = c.idCategoria
+    group by c.categoria
+
+--Listar os campos notícia, categoria, datacriação da tabela de notícias (inner join)    
+select tbNoticia.noticia, tbCategoria.categoria,tbNoticia.datacriacao
+    from tbNoticia
+	inner join tbCategoria
+    on tbNoticia.idCategoria = tbCategoria.idCategoria
+
+
+select tbNoticia.noticia, tbCategoria.categoria,tbNoticia.datacriacao
+    from tbNoticia
+	inner join tbCategoria
+    on tbNoticia.idCategoria = tbCategoria.idCategoria
+	where to_char(tbNoticia.dataCriacao,'MM') 
+	between 07 and 08 
+	and to_char(tbNoticia.dataCriacao,'YYYY') = 2024
+
