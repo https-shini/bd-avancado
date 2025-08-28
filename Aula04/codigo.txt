@@ -1,0 +1,73 @@
+create table tbEspecialidade(
+    idEspecialidade number primary key,
+    especialidade varchar2(40),
+    deleted number(1) DEFAULT 0,
+    data_criacao date DEFAULT sysdate,
+    data_alteracao date DEFAULT sysdate
+);
+
+insert into tbEspecialidade (idEspecialidade,especialidade) values(1,'Pediatria');
+
+select * from tbEspecialidade;
+
+create table tbMedico(
+    idMedico number primary key,
+    nomeMedico varchar2(40),
+    crmMedico varchar(40),
+    idEspecialidade number,
+    deleted number(1) DEFAULT 0,
+    data_criacao date DEFAULT sysdate,
+    data_alteracao date DEFAULT sysdate,
+    foreign key (idEspecialidade) references tbEspecialidade(idEspecialidade)
+);
+
+insert into tbMedico (idMedico,nomeMedico,crmMedico,idEspecialidade) values(1,'Moacir','11111',1);
+
+select * from tbMedico;
+
+create table tbPaciente(
+    idPaciente number primary key,
+    nomePaciente varchar2(40),
+    emailPaciente varchar2(40),
+    cpfPaciente varchar2(14),
+    deleted number(1) DEFAULT 0,
+    data_criacao date DEFAULT sysdate,
+    data_alteracao date DEFAULT sysdate
+);
+
+insert into tbPaciente (idPaciente, nomePaciente, emailPaciente, cpfPaciente)
+values(1, 'Gabriela', 'gabriela@gmail.com', '111.111.111-11');
+
+select * from tbPaciente;
+
+create table tbAgendaConsulta(
+    idAgendaConsulta number primary key,
+    idPaciente number,
+    idMedico number,
+    dataConsulta date,
+    horaConsulta timestamp,
+    deleted number(1) DEFAULT 0,
+    data_criacao date DEFAULT sysdate,
+    data_alteracao date DEFAULT sysdate,
+    foreign key (idPaciente) references tbPaciente(idPaciente),
+    foreign key (idMedico) references tbMedico(idMedico)
+);
+
+insert into tbAgendaConsulta(
+    idAgendaConsulta,
+    idPaciente,
+    idMedico,
+    dataConsulta,
+    horaConsulta
+)
+values(
+    1,
+    1,
+    1,
+    to_date('2025-08-30', 'yyyy-mm-dd'),
+    to_timestamp('10:00:00', 'hh24:mi:ss')
+);
+
+select * from tbAgendaConsulta;
+
+
