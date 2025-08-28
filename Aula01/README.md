@@ -14,25 +14,29 @@
   <a href="https://github.com/https-shini/bd-avancado/blob/main/Aula01/atividade.md">Atividade</a>
 </p>
 
-## 📜 Resumo  
-Nesta aula, foi apresentado um estudo de caso para a criação de um banco de dados para um **portal de notícias online**. O sistema contempla o cadastro de jornalistas, leitores, notícias, categorias, mídias, comentários, avaliações e favoritos.  
-O desafio principal foi identificar entidades, listar atributos e definir os relacionamentos, gerando um **Modelo Entidade-Relacionamento (MER)** e o script SQL para implementação.
+## 📜 Resumo
+A primeira aula introduziu o estudo de caso que será a base para o desenvolvimento prático da disciplina: a criação de um banco de dados para um **portal de notícias online**. O foco foi a aplicação dos conceitos de modelagem de dados para traduzir os requisitos de negócio em uma estrutura de banco de dados relacional, resultando na criação do Modelo Entidade-Relacionamento (MER).
 
-## 🔍 Conteúdo abordado  
-- Análise de requisitos do sistema  
-- Definição de entidades e atributos  
-- Modelagem de relacionamentos (1:1, 1:N, N:N)  
-- Criação do Modelo Entidade-Relacionamento (MER)  
-- Implementação no Oracle Live SQL
+## 📚 Conteúdo
+- **Análise de Requisitos:** Interpretação das necessidades do sistema, como cadastro de jornalistas, notícias, categorias, leitores e interações (comentários, avaliações).
+- **Modelagem Conceitual:**
+    - Identificação das entidades principais (`JORNALISTA`, `NOTICIA`, `CATEGORIA`, `LEITOR`, etc.).
+    - Definição dos atributos para cada entidade.
+    - Estabelecimento dos relacionamentos e suas cardinalidades (1:1, 1:N, N:N).
+- **Ferramentas:** Apresentação do Oracle Live SQL como ambiente para os exercícios práticos.
 
 ## 📎 Arquivos da Aula 01  
 - `Aula_01_ementa.pptx` — Ementa da disciplina e objetivos  
 - `Estudo_caso_portal_noticias.pptx` — Requisitos e enunciado da atividade  
-- `Resp_Ex123.pptx` — Respostas iniciais da modelagem  
+- `Resp_Ex123.pptx` — Respostas iniciais da modelagem
+  
+## 🗂️ Materiais
+- **[Apresentação da Disciplina](Aula_01_ementa.pptx):** Ementa, objetivos e conteúdo programático.
+- **[Enunciado do Estudo de Caso](Estudo_caso_portal_noticias.pptx):** Requisitos detalhados do portal de notícias.
+- **[Detalhamento da Atividade](atividade.md):** Resolução da modelagem, com a lista completa de entidades, atributos e relacionamentos.
+- **[Exemplo de Script SQL](exemplo.md):** Guia prático de como criar e popular tabelas com um exemplo simples de usuários e pedidos.
 
-## 📎 Atividade
-
-### 📜 Enunciado da Atividade
+## 📜 Enunciado da Atividade
 
 Uma empresa de mídia digital está desenvolvendo um portal de notícias online com o objetivo de publicar conteúdos informativos em diversas áreas, como política, esportes, tecnologia, cultura e economia.
 
@@ -51,7 +55,7 @@ Para isso, é necessário projetar um banco de dados relacional que armazenará 
 
 ---
 
-### ❓ Perguntas da Atividade
+## ❓ Perguntas da Atividade
 
 1. **Identifique as entidades necessárias para o banco de dados da empresa de mídia digital.**  
 2. **Para cada entidade, liste os atributos necessários.**  
@@ -60,4 +64,3 @@ Para isso, é necessário projetar um banco de dados relacional que armazenará 
 ---
 
 > *Este repositório é dedicado ao registro completo e organizado das atividades, estudos, materiais e práticas desenvolvidas na disciplina de Banco de Dados Avançado, servindo como recurso de consulta e suporte para o aprendizado contínuo.*
-
