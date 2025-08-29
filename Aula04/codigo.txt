@@ -1,73 +1,193 @@
-create table tbEspecialidade(
-    idEspecialidade number primary key,
-    especialidade varchar2(40),
-    deleted number(1) DEFAULT 0,
-    data_criacao date DEFAULT sysdate,
-    data_alteracao date DEFAULT sysdate
+CREATE TABLE tbEspecialidade(
+    idEspecialidade NUMBER PRIMARY KEY,
+    especialidade VARCHAR2(40),
+    deleted NUMBER(1) DEFAULT 0,
+    data_criacao DATE DEFAULT sysdate,
+    data_alteracao DATE DEFAULT sysdate
 );
 
-insert into tbEspecialidade (idEspecialidade,especialidade) values(1,'Pediatria');
-
-select * from tbEspecialidade;
-
-create table tbMedico(
-    idMedico number primary key,
-    nomeMedico varchar2(40),
-    crmMedico varchar(40),
-    idEspecialidade number,
-    deleted number(1) DEFAULT 0,
-    data_criacao date DEFAULT sysdate,
-    data_alteracao date DEFAULT sysdate,
-    foreign key (idEspecialidade) references tbEspecialidade(idEspecialidade)
+CREATE TABLE tbMedico(
+    idMedico NUMBER PRIMARY KEY,
+    nomeMedico VARCHAR2(40),
+    crmMedico VARCHAR(40),
+    idEspecialidade NUMBER,
+    deleted NUMBER(1) DEFAULT 0,
+    data_criacao DATE DEFAULT sysdate,
+    data_alteracao DATE DEFAULT sysdate,
+    FOREIGN KEY (idEspecialidade) REFERENCES tbEspecialidade(idEspecialidade)
 );
 
-insert into tbMedico (idMedico,nomeMedico,crmMedico,idEspecialidade) values(1,'Moacir','11111',1);
-
-select * from tbMedico;
-
-create table tbPaciente(
-    idPaciente number primary key,
-    nomePaciente varchar2(40),
-    emailPaciente varchar2(40),
-    cpfPaciente varchar2(14),
-    deleted number(1) DEFAULT 0,
-    data_criacao date DEFAULT sysdate,
-    data_alteracao date DEFAULT sysdate
+CREATE TABLE tbPaciente(
+    idPaciente NUMBER PRIMARY KEY,
+    nomePaciente VARCHAR2(40),
+    emailPaciente VARCHAR2(40),
+    cpfPaciente VARCHAR2(14),
+    deleted NUMBER(1) DEFAULT 0,
+    data_criacao DATE DEFAULT sysdate,
+    data_alteracao DATE DEFAULT sysdate
 );
 
-insert into tbPaciente (idPaciente, nomePaciente, emailPaciente, cpfPaciente)
-values(1, 'Gabriela', 'gabriela@gmail.com', '111.111.111-11');
-
-select * from tbPaciente;
-
-create table tbAgendaConsulta(
-    idAgendaConsulta number primary key,
-    idPaciente number,
-    idMedico number,
-    dataConsulta date,
-    horaConsulta timestamp,
-    deleted number(1) DEFAULT 0,
-    data_criacao date DEFAULT sysdate,
-    data_alteracao date DEFAULT sysdate,
-    foreign key (idPaciente) references tbPaciente(idPaciente),
-    foreign key (idMedico) references tbMedico(idMedico)
+CREATE TABLE tbAgendaConsulta(
+    idAgendaConsulta NUMBER PRIMARY KEY,
+    idPaciente NUMBER,
+    idMedico NUMBER,
+    dataConsulta DATE,
+    horaConsulta TIMESTAMP,
+    deleted NUMBER(1) DEFAULT 0,
+    data_criacao DATE DEFAULT sysdate,
+    data_alteracao DATE DEFAULT sysdate,
+    FOREIGN KEY (idPaciente) REFERENCES tbPaciente(idPaciente),
+    FOREIGN KEY (idMedico) REFERENCES tbMedico(idMedico)
 );
 
-insert into tbAgendaConsulta(
+-- especialidades
+INSERT INTO tbEspecialidade (idEspecialidade, especialidade) VALUES (1, 'Pediatria');
+INSERT INTO tbEspecialidade (idEspecialidade, especialidade) VALUES (2, 'Cardiologia');
+INSERT INTO tbEspecialidade (idEspecialidade, especialidade) VALUES (3, 'Ortopedia');
+
+-- médicos
+INSERT INTO tbMedico (idMedico, nomeMedico, crmMedico, idEspecialidade) VALUES (1, 'Dr. Moacir', '11111', 1);
+INSERT INTO tbMedico (idMedico, nomeMedico, crmMedico, idEspecialidade) VALUES (2, 'Dra. Ana', '22222', 2);
+INSERT INTO tbMedico (idMedico, nomeMedico, crmMedico, idEspecialidade) VALUES (3, 'Dr. Carlos', '33333', 3);
+
+
+-- pacientes
+INSERT INTO tbPaciente (idPaciente, nomePaciente, emailPaciente, cpfPaciente) VALUES (1, 'Gabriela', 'gabriela@gmail.com', '111.111.111-11');
+INSERT INTO tbPaciente (idPaciente, nomePaciente, emailPaciente, cpfPaciente) VALUES (2, 'Felipe', 'felipe@gmail.com', '222.222.222-22');
+INSERT INTO tbPaciente (idPaciente, nomePaciente, emailPaciente, cpfPaciente, deleted) VALUES (3, 'Mariana (Inativa)', 'mariana@gmail.com', '333.333.333-33', 1);
+
+
+-- Consulta futura (manhã)
+INSERT INTO tbAgendaConsulta (idAgendaConsulta, idPaciente, idMedico, dataConsulta, horaConsulta)
+VALUES (1, 1, 1, TO_DATE('2025-09-15','yyyy-mm-dd'), TO_TIMESTAMP('10:00:00', 'hh24:mi:ss'));
+
+-- Consulta futura (tarde)
+INSERT INTO tbAgendaConsulta (idAgendaConsulta, idPaciente, idMedico, dataConsulta, horaConsulta)
+VALUES (2, 2, 2, TO_DATE('2025-09-20','yyyy-mm-dd'), TO_TIMESTAMP('15:30:00', 'hh24:mi:ss'));
+
+-- Consulta passada
+INSERT INTO tbAgendaConsulta (idAgendaConsulta, idPaciente, idMedico, dataConsulta, horaConsulta)
+VALUES (3, 1, 3, TO_DATE('2024-08-10','yyyy-mm-dd'), TO_TIMESTAMP('09:00:00', 'hh24:mi:ss'));
+
+-- Consulta para hoje (manhã)
+INSERT INTO tbAgendaConsulta (idAgendaConsulta, idPaciente, idMedico, dataConsulta, horaConsulta)
+VALUES (4, 2, 1, TRUNC(SYSDATE), TO_TIMESTAMP('08:30:00', 'hh24:mi:ss'));
+
+
+-- Exercicio 01
+CREATE OR REPLACE VIEW vw_medico_especialidade AS
+SELECT
+    m.nomeMedico AS nome_medico,
+    m.crmMedico AS crm,
+    e.especialidade
+FROM
+    tbMedico m
+INNER JOIN
+    tbEspecialidade e ON m.idEspecialidade = e.idEspecialidade;
+
+SELECT * FROM vw_medico_especialidade;
+
+-- Exercicio 02
+CREATE OR REPLACE VIEW vw_consulta_paciente AS
+SELECT
+    p.nomePaciente AS nome_paciente,
+    m.nomeMedico AS nome_medico,
+    e.especialidade,
+    a.dataConsulta AS data_da_consulta,
+    a.horaConsulta AS hora_da_consulta
+FROM
+    tbAgendaConsulta a
+INNER JOIN
+    tbPaciente p ON a.idPaciente = p.idPaciente
+INNER JOIN
+    tbMedico m ON a.idMedico = m.idMedico
+INNER JOIN
+    tbEspecialidade e ON m.idEspecialidade = e.idEspecialidade;
+
+SELECT * FROM vw_consulta_paciente;
+
+-- Exercicio 03
+CREATE OR REPLACE VIEW vw_pacientes_ativos AS
+SELECT
+    idPaciente,
+    nomePaciente,
+    emailPaciente,
+    cpfPaciente
+FROM
+    tbPaciente
+WHERE
+    deleted = 0;
+
+SELECT * FROM vw_pacientes_ativos;
+
+-- Exercicio 04
+CREATE OR REPLACE VIEW vw_consultas_futuras AS
+SELECT
     idAgendaConsulta,
     idPaciente,
     idMedico,
     dataConsulta,
     horaConsulta
-)
-values(
-    1,
-    1,
-    1,
-    to_date('2025-08-30', 'yyyy-mm-dd'),
-    to_timestamp('10:00:00', 'hh24:mi:ss')
-);
+FROM
+    tbAgendaConsulta
+WHERE
+    dataConsulta > TRUNC(SYSDATE);
 
-select * from tbAgendaConsulta;
+SELECT * FROM vw_consultas_futuras;
+
+-- Exercicio 05
+CREATE OR REPLACE VIEW vw_quantidade_pacientes AS
+SELECT
+    COUNT(idPaciente) AS total_de_pacientes
+FROM
+    tbPaciente;
+
+SELECT * FROM vw_quantidade_pacientes;
+
+-- Exercicio 06
+CREATE OR REPLACE VIEW vw_consultas_manha AS
+SELECT
+    idAgendaConsulta,
+    idPaciente,
+    idMedico,
+    dataConsulta,
+    horaConsulta
+FROM
+    tbAgendaConsulta
+WHERE
+    dataConsulta = TRUNC(SYSDATE)
+    AND TO_CHAR(horaConsulta, 'HH24') >= '08'
+    AND TO_CHAR(horaConsulta, 'HH24') < '12';
+
+SELECT * FROM vw_consultas_manha;
+
+-- Consulta dos exercicios
+-- Exercicio 01
+SELECT * FROM vw_medico_especialidade;
+-- Exercicio 02
+SELECT * FROM vw_consulta_paciente;
+-- Exercicio 03
+SELECT * FROM vw_pacientes_ativos;
+-- Exercicio 04
+SELECT * FROM vw_consultas_futuras;
+-- Exercicio 05
+SELECT * FROM vw_quantidade_pacientes;
+-- Exercicio 06
+SELECT * FROM vw_consultas_manha;
+
+
+-- Limpar ambiente
+DROP VIEW vw_medico_especialidade;
+DROP VIEW vw_consulta_paciente;
+DROP VIEW vw_pacientes_ativos;
+DROP VIEW vw_consultas_futuras;
+DROP VIEW vw_quantidade_pacientes;
+DROP VIEW vw_consultas_manha;
+
+DROP TABLE tbAgendaConsulta;
+DROP TABLE tbMedico;
+DROP TABLE tbPaciente;
+DROP TABLE tbEspecialidade;
+
 
 
