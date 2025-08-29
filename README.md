@@ -42,22 +42,22 @@ O objetivo é capacitar o aluno a projetar, implementar e otimizar soluções de
 ## 📊 Aulas e Projetos — Laboratório de Banco de Dados
 
 ### 📝 Aula 01 — Estudo de Caso: Modelagem do Portal de Notícias
-Na **Aula 01** foi apresentado um estudo de caso para o desenvolvimento de um banco de dados de um **portal de notícias online**, com requisitos como cadastro de jornalistas, leitores, notícias, categorias, mídias, comentários, avaliações e favoritos. O desafio consistiu em identificar as entidades, listar atributos e definir os relacionamentos, gerando um **Modelo Entidade-Relacionamento (MER)** e um **script SQL** para implementação.
+A **Aula 01** apresentou um estudo de caso para o desenvolvimento de um banco de dados de um **portal de notícias online**. Foram definidos requisitos como cadastro de jornalistas, leitores, notícias, categorias, mídias, comentários, avaliações e favoritos. O desafio consistiu em identificar entidades, listar atributos e estabelecer relacionamentos, resultando em um **Modelo Entidade-Relacionamento (MER)** e em um **script SQL** inicial de implementação.
 
 👉 [Acessar o conteúdo completo da Aula 01.](Aula01/README.md)
 
 ### 📝 Aula 02 — Implementação e Consultas SQL
-Na **Aula 02**, o foco foi a implementação prática do banco de dados do portal de notícias. A aula abordou a criação das tabelas com `CREATE TABLE`, a inserção de dados de exemplo com `INSERT` e a execução de uma série de consultas SQL para revisar conceitos de seleção, filtragem, ordenação e agregação de dados.
+A **Aula 02** focou na implementação prática do banco de dados do portal de notícias. Foram criadas tabelas com `CREATE TABLE`, inseridos dados de exemplo com `INSERT` e executadas consultas SQL para revisar conceitos fundamentais, como seleção, filtragem, ordenação e agregação de dados.
 
 👉 [Acessar o conteúdo completo da Aula 02.](Aula02/README.md)
 
 ### 📝 Aula 03 — Manipulação Avançada de Dados (DML)
-Na **Aula 03** aprofundou os conhecimentos em manipulação de dados, com foco nos comandos `UPDATE` e `DELETE`. A aula também introduziu técnicas avançadas para a inserção de dados, com ênfase na manipulação de **datas e horas**, utilizando funções como `TO_DATE`, `TO_TIMESTAMP`, `SYSDATE` e `CURRENT_TIMESTAMP`.
+Na **Aula 03**, os estudos se aprofundaram na **manipulação de dados**. O conteúdo abordou os comandos `UPDATE` e `DELETE`, além de técnicas avançadas para inserção de dados, com destaque para a manipulação de **datas e horas**, utilizando funções como `TO_DATE`, `TO_TIMESTAMP`, `SYSDATE` e `CURRENT_TIMESTAMP`.
 
 👉 [Acessar o conteúdo completo da Aula 03.](Aula03/README.md)
 
 ### 📝 Aula 04 — Views e Abstração de Consultas
-Na **Aula 04** introduziu um novo estudo de caso sobre uma **clínica médica** para ensinar o conceito de **Views**. A aula abordou como criar tabelas virtuais para simplificar consultas complexas, proteger dados sensíveis e abstrair a lógica de acesso aos dados, além de apresentar o conceito de *soft delete*.
+A **Aula 04** introduziu um novo estudo de caso, desta vez sobre uma **clínica médica**, para apresentar o conceito de `Views`. O foco foi mostrar como as tabelas virtuais podem simplificar consultas complexas, proteger dados sensíveis e abstrair a lógica de acesso às informações, além de introduzir o conceito de *soft delete*.
 
 👉 [Acessar o conteúdo completo da Aula 04.](Aula04/README.md)
 
