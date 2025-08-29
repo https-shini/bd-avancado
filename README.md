@@ -52,9 +52,14 @@ Na **Aula 02**, o foco foi a implementação prática do banco de dados do porta
 👉 [Acessar o conteúdo completo da Aula 02.](Aula02/README.md)
 
 ### 📝 Aula 03 — Manipulação Avançada de Dados (DML)
-A **Aula 03** aprofundou os conhecimentos em manipulação de dados, com foco nos comandos `UPDATE` e `DELETE`. A aula também introduziu técnicas avançadas para a inserção de dados, com ênfase na manipulação de **datas e horas**, utilizando funções como `TO_DATE`, `TO_TIMESTAMP`, `SYSDATE` e `CURRENT_TIMESTAMP`.
+Na **Aula 03** aprofundou os conhecimentos em manipulação de dados, com foco nos comandos `UPDATE` e `DELETE`. A aula também introduziu técnicas avançadas para a inserção de dados, com ênfase na manipulação de **datas e horas**, utilizando funções como `TO_DATE`, `TO_TIMESTAMP`, `SYSDATE` e `CURRENT_TIMESTAMP`.
 
 👉 [Acessar o conteúdo completo da Aula 03.](Aula03/README.md)
+
+### 📝 Aula 04 — Views e Abstração de Consultas
+Na **Aula 04** introduziu um novo estudo de caso sobre uma **clínica médica** para ensinar o conceito de **Views**. A aula abordou como criar tabelas virtuais para simplificar consultas complexas, proteger dados sensíveis e abstrair a lógica de acesso aos dados, além de apresentar o conceito de *soft delete*.
+
+👉 [Acessar o conteúdo completo da Aula 04.](Aula04/README.md)
 
 ---
 
