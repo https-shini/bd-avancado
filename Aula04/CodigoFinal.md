@@ -1,3 +1,5 @@
+
+~~~~sql
 -- =====================================================================
 -- PARTE 1: CRIAÇÃO DAS TABELAS (ESTUDO DE CASO: CLÍNICA MÉDICA)
 -- Definição da estrutura do banco de dados para o agendamento de consultas.
@@ -194,6 +196,57 @@ SELECT * FROM vw_quantidade_pacientes;
 -- Testando a View 6
 SELECT * FROM vw_consultas_manha;
 
+-- =====================================================================
+-- PARTE 1: EXCLUSÃO DAS VIEWS (AULA 04)
+-- É uma boa prática remover as views antes de remover as tabelas
+-- das quais elas dependem.
+-- =====================================================================
+
+DROP VIEW vw_medico_especialidade;
+DROP VIEW vw_consulta_paciente;
+DROP VIEW vw_pacientes_ativos;
+DROP VIEW vw_consultas_futuras;
+DROP VIEW vw_quantidade_pacientes;
+DROP VIEW vw_consultas_manha;
 
 
+-- =====================================================================
+-- PARTE 2: EXCLUSÃO DAS TABELAS DA CLÍNICA MÉDICA (AULA 04)
+-- As tabelas devem ser removidas na ordem inversa de sua criação
+-- para evitar erros de restrição de chave estrangeira (foreign key).
+-- =====================================================================
 
+-- 1. Remove a tabela de agendamentos, que depende de Paciente e Medico.
+DROP TABLE tbAgendaConsulta;
+
+-- 2. Remove a tabela de médicos, que depende de Especialidade.
+DROP TABLE tbMedico;
+
+-- 3. Remove a tabela de pacientes.
+DROP TABLE tbPaciente;
+
+-- 4. Remove a tabela de especialidades.
+DROP TABLE tbEspecialidade;
+
+
+-- =====================================================================
+-- PARTE 3: EXCLUSÃO DAS TABELAS DO PORTAL DE NOTÍCIAS (AULAS 01-03)
+-- Seguindo a mesma lógica, remove as tabelas na ordem inversa
+-- para respeitar as dependências.
+-- =====================================================================
+
+-- 1. Remove a tabela associativa, que depende de Notícia e Jornalista.
+DROP TABLE tb_noticia_jornalista;
+
+-- 2. Remove a tabela de notícias, que depende de Status e Categoria.
+DROP TABLE tb_noticia;
+
+-- 3. Remove a tabela de jornalistas.
+DROP TABLE tb_jornalista;
+
+-- 4. Remove a tabela de status.
+DROP TABLE tb_status_noticia;
+
+-- 5. Remove a tabela de categorias.
+DROP TABLE tb_categoria;
+~~~~
