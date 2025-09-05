@@ -256,7 +256,7 @@ DROP TABLE tb_categoria;
 -- =====================================================================
 
 declare
-	v_nome varchar2(40) := 'Maria'
+	v_nome varchar2(40) := 'Bruna'
 begin
 	dbms_output.put_line('Olá mundo!');
 	dbms_output.put_line('Seja bem-vindo' || v_nome);
@@ -306,24 +306,28 @@ END;
 -- Bloco que simula um sorteio e compara com números escolhidos.
 DECLARE
   -- Números que o "usuário" escolheu.
-  v_num1_escolhido NUMBER := 7;
-  v_num2_escolhido NUMBER := 3;
+  v_num1_escolhido NUMBER := 2;
+  v_num2_escolhido NUMBER := 4;
+  v_num3_escolhido NUMBER := 6;
 
   -- Variáveis para guardar os números que serão sorteados.
   v_num1_sorteado NUMBER;
   v_num2_sorteado NUMBER;
+  v_num3_sorteado NUMBER;
 BEGIN
   -- Gera dois números aleatórios inteiros entre 1 e 10.
   -- DBMS_RANDOM.VALUE(min, max) gera um número decimal. A função TRUNC() o converte para inteiro.
   v_num1_sorteado := TRUNC(DBMS_RANDOM.VALUE(1, 11)); -- O limite superior (11) é exclusivo.
   v_num2_sorteado := TRUNC(DBMS_RANDOM.VALUE(1, 11));
+  v_num3_sorteado := TRUNC(DBMS_RANDOM.VALUE(1, 11));
 
   -- Exibe os números para comparação.
-  DBMS_OUTPUT.PUT_LINE('Números escolhidos: ' || v_num1_escolhido || ' e ' || v_num2_escolhido);
-  DBMS_OUTPUT.PUT_LINE('Números sorteados: ' || v_num1_sorteado || ' e ' || v_num2_sorteado);
+  DBMS_OUTPUT.PUT_LINE('Números escolhidos: ' || v_num1_escolhido || ' e ' || v_num2_escolhido || ' e '  || v_num3_escolhido);
+  DBMS_OUTPUT.PUT_LINE('Números sorteados: ' || v_num1_sorteado || ' e ' || v_num2_sorteado || ' e '  || v_num3_escolhido);
+
 
   -- Compara se AMBOS os números escolhidos são iguais aos sorteados.
-  IF v_num1_escolhido = v_num1_sorteado AND v_num2_escolhido = v_num2_sorteado THEN
+  IF v_num1_escolhido = v_num1_sorteado AND v_num2_escolhido = v_num2_sorteado AND v_num3_escolhido = v_num3_sorteado THEN
     DBMS_OUTPUT.PUT_LINE('Resultado: Parabéns! Você acertou em cheio!');
   ELSE
     DBMS_OUTPUT.PUT_LINE('Resultado: Não foi desta vez. Tente novamente!');
@@ -335,7 +339,7 @@ END;
 -- Bloco para calcular e exibir o reajuste de salário de um funcionário.
 DECLARE
   -- Definição das variáveis de entrada.
-  v_nome_funcionario   VARCHAR2(100) := 'Carlos Andrade';
+  v_nome_funcionario   VARCHAR2(100) := 'Sabrina de Souza';
   v_salario_atual      NUMBER(10, 2) := 5000.00; -- Formato com 10 dígitos no total e 2 decimais.
   v_percentual_aumento NUMBER        := 10;      -- Aumento de 10%
 
