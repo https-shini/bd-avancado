@@ -14,7 +14,7 @@ INSERT INTO tbProduto (produto, valor) VALUES ('Televisão', 1499.99);
 INSERT INTO tbProduto (produto, valor) VALUES ('Livro de Programação', 59.90);
 INSERT INTO tbProduto (produto, valor) VALUES ('Romance Histórico', 34.90);
 
-COMMIT;
+SELECT * FROM tbProduto;
 
 
 -- =====================================================================
@@ -22,18 +22,18 @@ COMMIT;
 -- =====================================================================
 ALTER TABLE tbProduto ADD estoqueProduto NUMBER(5);
 
+SELECT * FROM tbProduto;
 
 -- =====================================================================
 -- EXERCÍCIO 2: Atualizar os valores de estoque
--- Vamos inserir valores estratégicos para testar todas as condições do próximo exercício.
 -- =====================================================================
-UPDATE tbProduto SET estoqueProduto = 25 WHERE produto = 'Smartphone';          -- Disponível
-UPDATE tbProduto SET estoqueProduto = 50 WHERE produto = 'Fone de Ouvido';      -- Disponível
-UPDATE tbProduto SET estoqueProduto = 5  WHERE produto = 'Televisão';           -- Estoque Muito Baixo
-UPDATE tbProduto SET estoqueProduto = 0  WHERE produto = 'Livro de Programação';-- Sem Estoque
-UPDATE tbProduto SET estoqueProduto = 8  WHERE produto = 'Romance Histórico';   -- Estoque Muito Baixo
+UPDATE tbProduto SET estoqueProduto = 25 WHERE produto = 'Smartphone';
+UPDATE tbProduto SET estoqueProduto = 50 WHERE produto = 'Fone de Ouvido';
+UPDATE tbProduto SET estoqueProduto = 5  WHERE produto = 'Televisão';
+UPDATE tbProduto SET estoqueProduto = 0  WHERE produto = 'Livro de Programação';
+UPDATE tbProduto SET estoqueProduto = 8  WHERE produto = 'Romance Histórico';
 
-COMMIT;
+SELECT * FROM tbProduto;
 
 
 -- =====================================================================
@@ -49,5 +49,4 @@ SELECT
         ELSE 'DISPONÍVEL'
     END AS situacao
 FROM tbProduto;
-
 
