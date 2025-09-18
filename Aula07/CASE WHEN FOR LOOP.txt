@@ -1,0 +1,42 @@
+-- while
+declare
+    base number := 2;
+    expoente number := 5;
+    contador number := 1;
+    potencia number := 1;
+begin
+    while contador <= expoente loop
+        potencia := potencia * base;
+        contador := contador + 1;
+    end loop;
+
+    dbms_output.put_line(potencia);
+end;
+
+
+-- loop
+DECLARE
+    contador number := 1;
+    numero number := 5;
+BEGIN
+    LOOP
+        EXIT WHEN contador > 10;
+        DBMS_OUTPUT.PUT_LINE(numero || ' * ' || contador || ' = ' || (numero*contador));
+        contador := contador + 1;
+    END LOOP;
+END;
+
+
+-- for
+DECLARE
+    fatorial number := 1;
+    numero number := 6;
+BEGIN
+    FOR i IN 1..numero LOOP
+        fatorial := fatorial * i;
+    END LOOP;
+
+    dbms_output.put_line(fatorial);
+END;
+
+
