@@ -15,35 +15,113 @@
 ## 🎯 **About Me**
 
 ```bash
+vitor@localhost:~$ cat about_me.sh
 #!/bin/bash
 
-class VitorStratikopoulos {
-    constructor() {
-        this.name = "Vitor Stratikopoulos"
-        this.location = "São Paulo, SP - Brasil"
-        this.semester = "5º Semestre"
-        this.course = "Ciências da Computação"
-        this.role = "Infrastructure & DevOps Enthusiast"
-        this.interests = ["Linux", "Cloud Computing", "Automation", "Networking"]
-    }
-    
-    currentFocus() {
-        return [
-            "🐧 Linux System Administration",
-            "☁️ Cloud & DevOps Practices",
-            "🔧 Infrastructure as Code",
-            "🌐 Network Engineering",
-            "🐳 Containerization & Orchestration",
-            "📊 Monitoring & Observability"
-        ]
-    }
-    
-    getMotto() {
-        return "Building reliable and scalable infrastructure, one commit at a time! 🚀"
-    }
+# System Information
+whoami() {
+    echo "vitor"
 }
 
-echo "$(VitorStratikopoulos.getMotto())"
+hostname() {
+    echo "stratikopoulos-workstation"
+}
+
+pwd() {
+    echo "/home/vitor/projects/infrastructure"
+}
+
+# User Profile
+cat << 'EOF'
+┌──────────────────────────────────────────────────────────────┐
+│              SYSTEM USER PROFILE - V.STRATIKOPOULOS          │
+└──────────────────────────────────────────────────────────────┘
+
+USER INFO:
+  Name:           Vitor Stratikopoulos
+  Location:       São Paulo, SP - Brasil
+  Shell:          /bin/bash
+  Home:           /home/vitor
+  Groups:         devops, sysadmin, docker, kubernetes
+  
+ACADEMIC STATUS:
+  Course:         BSc in Computer Science
+  Institution:    [Your University]
+  Semester:       5th/8th
+  Status:         Active
+  GPA:            [Your GPA]
+  
+CURRENT $PATH:
+  🐧 /usr/bin/linux-administration
+  ☁️ /opt/cloud-computing/aws-azure
+  🔧 /usr/local/devops/automation
+  🌐 /etc/networking/protocols
+  🐳 /var/lib/docker/containers
+  📊 /var/log/monitoring/observability
+
+ENVIRONMENT VARIABLES:
+  $ROLE:          "Infrastructure & DevOps Engineer"
+  $INTERESTS:     "Linux, Cloud, Automation, Networking"
+  $EDITOR:        vim
+  $TERMINAL:      gnome-terminal
+  $DISTRO:        Ubuntu 22.04 LTS | RHEL 9 | Oracle Linux
+  
+ACTIVE PROCESSES:
+  PID    CMD                          STATUS    PRIORITY
+  ───────────────────────────────────────────────────────
+  1337   learning_kubernetes          Running   High
+  2048   studying_terraform           Running   High  
+  3142   docker_homelab               Running   Medium
+  4096   ansible_automation           Running   Medium
+  5555   monitoring_setup             Running   Low
+  7890   contributing_opensource      Sleeping  Low
+
+UPTIME & STATS:
+  • Years in Tech:        3+ years
+  • Commits This Year:    500+
+  • Coffee Consumed:      ∞
+  • Sleep Hours:          Optimized for performance
+  
+CRON JOBS (Daily Routine):
+  0  8  * * *  /usr/bin/study-linux-administration
+  0  10 * * *  /opt/practice-terraform-aws
+  0  14 * * *  /usr/bin/docker-labs
+  0  16 * * *  /usr/local/bin/contribute-github
+  0  20 * * *  /home/vitor/scripts/learn-kubernetes.sh
+  0  22 * * *  /usr/bin/read-devops-articles
+
+MOUNTED FILESYSTEMS:
+  /knowledge/infrastructure    → Constantly expanding
+  /skills/automation          → Auto-mounted on boot
+  /experience/real-world      → Growing daily
+  /certifications/preparing   → LFCS, AWS SAA, CKA
+
+MOTTO:
+  "Building reliable and scalable infrastructure,
+   one commit at a time! 🚀"
+
+EOF
+
+# Check system resources
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  💡 TIP: Run 'cat projects.md' to see my infrastructure labs"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+vitor@localhost:~$ sudo systemctl status vitor.service
+● vitor.service - Vitor Stratikopoulos Infrastructure Engineer
+   Loaded: loaded (/etc/systemd/system/vitor.service; enabled)
+   Active: active (running) since 2022-01-01
+   Main PID: 1337 (learning)
+   Tasks: 42 (limit: infinity)
+   Memory: Optimized
+   CGroup: /system.slice/vitor.service
+           ├─ Learning new technologies
+           ├─ Building infrastructure projects
+           ├─ Contributing to open source
+           └─ Sharing knowledge with community
+
+vitor@localhost:~$ █
 ```
 
 ---
