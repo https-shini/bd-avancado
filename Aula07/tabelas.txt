@@ -1,0 +1,14 @@
+create table tbDepartamento(
+	idDepartamento number primary key,
+	departamento varchar2(40)
+);
+
+create table tbFuncionario(
+	idFuncionario number primary key,
+	nomeFuncionario varchar2(50),
+	dataNascimentoFuncionario date,
+	idDepartamento number,
+	dataContratacaoFuncionario date,
+	salarioFuncionario float,
+	foreign key(idDepartamento) references tbDepartamento(idDepartamento)
+);

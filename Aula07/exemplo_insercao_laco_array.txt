@@ -1,0 +1,35 @@
+create table tbDepartamento(
+	idDepartamento number primary key,
+	departamento varchar2(40)
+);
+
+/*
+Tecnologia
+Administrativo
+Financeiro
+Recursos Humanos
+Comercial
+Marketing
+Produção
+Jurídico
+Logística
+Atendimento
+Pesquisa e Desenvolvimento
+*/
+
+declare 
+	type t_departamento is varray(5) of varchar2(50);
+	v_departamento t_departamento := t_departamento(
+        'Tecnologia',
+        'Administrativo',
+        'Financeiro',
+        'Recursos Humanos',
+        'Comercial'
+    );
+begin
+    for i in 1..5 loop
+    	insert into tbDepartamento values(i,v_departamento(i));
+    end loop;	
+end;
+
+select * from tbDepartamento;

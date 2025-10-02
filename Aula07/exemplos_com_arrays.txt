@@ -1,0 +1,63 @@
+-- Tabela Associativa
+
+DECLARE
+  TYPE t_numeros IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
+  v_numeros t_numeros;
+BEGIN
+  v_numeros(1) := 5;
+  v_numeros(2) := 10;
+
+  DBMS_OUTPUT.PUT_LINE('Número: ' || v_numeros(1));
+  DBMS_OUTPUT.PUT_LINE('Número: ' || v_numeros(2));
+END;
+
+
+--
+
+DECLARE
+  TYPE t_nome IS TABLE OF VARCHAR2(50);
+  v_nomes t_nome := t_nome('João', 'Maria', 'Pedro');
+BEGIN
+  FOR i IN 1 .. v_nomes.COUNT LOOP
+    DBMS_OUTPUT.PUT_LINE('Nome: ' || v_nomes(i));
+  END LOOP;
+END;
+
+
+-----------------------------------------------------------
+
+-- nested table
+
+CREATE OR REPLACE TYPE numerosTable IS TABLE OF NUMBER;
+
+DECLARE
+    vNumeros numerosTable := numerosTable(1, 2, 3, 4);
+BEGIN    
+    FOR i IN 1 .. vNumeros.COUNT LOOP
+        DBMS_OUTPUT.PUT_LINE('Posição ' || i || ' = ' || vNumeros(i));
+    END LOOP;
+
+    -- Excluir um valor
+    vNumeros.DELETE(2);
+
+    DBMS_OUTPUT.PUT_LINE('Após a exclusão ');
+
+	DBMS_OUTPUT.PUT_LINE('Total de números: ' || vNumeros.COUNT);
+
+    FOR i IN vNumeros.FIRST .. vNumeros.LAST LOOP
+        IF vNumeros.EXISTS(i) THEN
+            DBMS_OUTPUT.PUT_LINE('Posição ' || i || ' = ' || vNumeros(i));
+        END IF;
+    END LOOP;
+
+    -- Inserir valor
+    vNumeros.EXTEND;
+    vNumeros(vNumeros.LAST) := 50;
+
+    DBMS_OUTPUT.PUT_LINE('Após a inserção ');
+    FOR i IN 1 .. vNumeros.COUNT LOOP
+        IF vNumeros.EXISTS(i) THEN
+            DBMS_OUTPUT.PUT_LINE('Posição ' || i || ' = ' || vNumeros(i));
+        END IF;
+    END LOOP;
+END;
