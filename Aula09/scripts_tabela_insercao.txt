@@ -1,0 +1,28 @@
+create or replace function fn_soma(a number, b number)
+return number
+    is
+begin
+	return a+b;
+end;
+
+begin
+	  dbms_output.put_line('Total da soma: '||fn_soma(8,2));
+end;
+
+--supabase
+
+
+----------------
+
+CREATE TABLE tbFuncionario (
+    idFuncionario NUMBER PRIMARY KEY,
+    nomeFuncionario VARCHAR2(100),
+    dataNascimentoFuncionario DATE
+);
+
+
+INSERT INTO tbFuncionario VALUES (1, 'Bruna Santos', TO_DATE('20/08/2000', 'DD/MM/YYYY'));
+INSERT INTO tbFuncionario VALUES (2, 'Rose Pimentel', TO_DATE('02/10/2024', 'DD/MM/YYYY'));
+INSERT INTO tbFuncionario VALUES (3, 'Ana Cássia', TO_DATE('08/08/1981', 'DD/MM/YYYY'));
+
+select * from tbFuncionario;

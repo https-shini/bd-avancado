@@ -1,0 +1,130 @@
+CREATE TABLE ALUNO (
+    IDALUNO NUMBER PRIMARY KEY,        
+    NOME VARCHAR2(100),            
+    DATA_NASCIMENTO DATE,          
+    EMAIL VARCHAR2(100),                    
+    TELEFONE VARCHAR2(15)                   
+);
+
+CREATE TABLE CURSO (
+    IDCURSO NUMBER PRIMARY KEY,    
+    CURSO VARCHAR2(100),  
+    DESCRICAO VARCHAR2(255)                
+);
+
+CREATE TABLE TURMA (
+    IDTURMA NUMBER PRIMARY KEY,        
+    IDCURSO NUMBER NOT NULL,           
+    TURMA VARCHAR2(50),       
+    ANO NUMBER,                 
+    SEMESTRE NUMBER,            
+    PERIODO VARCHAR2(20),                   
+    CONSTRAINT FK_TURMA_CURSO FOREIGN KEY (IDCURSO) REFERENCES CURSO(IDCURSO) 
+);
+
+CREATE TABLE TURMA_ALUNO (
+    IDTURMAALUNO NUMBER	PRIMARY KEY,
+    IDALUNO NUMBER,
+    IDTURMA NUMBER,
+    DATA_ENTRADA DATE DEFAULT SYSDATE,    
+    CONSTRAINT FK_TURMAALUNO_ALUNO FOREIGN KEY (IDALUNO) REFERENCES ALUNO(IDALUNO), 
+    CONSTRAINT FK_TURMAALUNO_TURMA FOREIGN KEY (IDTURMA) REFERENCES TURMA(IDTURMA) 
+);
+
+--Inserções
+
+INSERT INTO ALUNO (IDALUNO, NOME, DATA_NASCIMENTO, EMAIL, TELEFONE)
+VALUES (1, 'Carlos Silva', TO_DATE('1995-04-10', 'YYYY-MM-DD'), 'carlos.silva@email.com', '11987654321');
+
+INSERT INTO ALUNO (IDALUNO, NOME, DATA_NASCIMENTO, EMAIL, TELEFONE)
+VALUES (2, 'Ana Souza', TO_DATE('1998-06-23', 'YYYY-MM-DD'), 'ana.souza@email.com', '11998765432');
+
+INSERT INTO CURSO (IDCURSO, CURSO, DESCRICAO)
+VALUES (1, 'Engenharia de Software', 'Curso de desenvolvimento de software com foco em engenharia.');
+
+INSERT INTO CURSO (IDCURSO, CURSO, DESCRICAO)
+VALUES (2, 'Administração', 'Curso de gestão e administração de empresas.');
+
+INSERT INTO TURMA (IDTURMA, IDCURSO, TURMA, ANO, SEMESTRE, PERIODO)
+VALUES (1, 1, 'T01', 2024, 1, 'Manhã');
+
+INSERT INTO TURMA (IDTURMA, IDCURSO, TURMA, ANO, SEMESTRE, PERIODO)
+VALUES (2, 2, 'T02', 2024, 2, 'Noite');
+
+INSERT INTO TURMA_ALUNO (IDTURMAALUNO,IDALUNO, IDTURMA, DATA_ENTRADA)
+VALUES (1, 1, 1, TO_DATE('2024-09-10', 'YYYY-MM-DD'));
+
+INSERT INTO TURMA_ALUNO (IDTURMAALUNO,IDALUNO, IDTURMA, DATA_ENTRADA)
+VALUES (2, 2, 2, TO_DATE('2024-09-08', 'YYYY-MM-DD'));
+
+-- Listagem dos dados
+select * from aluno;
+select * from curso;
+select * from turma;
+select * from turma_aluno;
+
+--Declaração da procedure para listar todos os alunos
+create or replace procedure pr_listar_alunos is
+    cursor aluno_cursor is
+    	select * from aluno;
+
+	var_id aluno.idaluno%TYPE;
+	var_nome aluno.nome%TYPE;
+	var_nascimento aluno.data_nascimento%TYPE;
+    var_email aluno.email%TYPE;
+	var_telefone aluno.telefone%TYPE;
+    
+    begin
+        open aluno_cursor;
+			loop
+        		FETCH aluno_cursor into var_id, var_nome,var_nascimento,var_email,var_telefone;
+				exit when aluno_cursor%NOTFOUND; 
+				dbms_output.put_line('ID: ' || var_id ||
+                                     ' Nome: '|| var_nome ||
+                                     ' Nascimento: ' || var_nascimento || 
+                                     ' E-mail: ' || var_email || 
+                                     ' Telefone: ' || var_telefone
+                                    );	
+			end loop;
+		close aluno_cursor;
+	end;
+
+--execução da procedure
+exec pr_listar_alunos;
+
+--procedure para listar os alunos por e-mail
+create or replace procedure pr_listar_aluno_por_email(email_in in varchar2) is
+   
+	var_id aluno.idaluno%TYPE;
+	var_nome aluno.nome%TYPE;
+	var_nascimento aluno.data_nascimento%TYPE;
+    var_email aluno.email%TYPE;
+	var_telefone aluno.telefone%TYPE;
+    
+    begin
+        select * into var_id, var_nome,var_nascimento,var_email,var_telefone from aluno where email = email_in;	
+				
+        dbms_output.put_line('ID: ' || var_id ||
+                             ' Nome: '|| var_nome ||
+                             ' Nascimento: ' || var_nascimento || 
+                             ' E-mail: ' || var_email || 
+                             ' Telefone: ' || var_telefone
+                            );				
+	exception
+    when NO_DATA_FOUND then
+        dbms_output.put_line('Aluno não encontrado.');
+	end;
+
+exec pr_listar_aluno_por_email('carlos.silva@email.com');
+exec pr_listar_aluno_por_email('carlos2.silva@email.com');
+
+
+create or replace procedure pr_total_aluno is
+    total number;
+begin    
+	select count(idaluno) "total_aluno" into total from aluno;
+
+	dbms_output.put_line('Total de alunos cadastrados: ' || total);
+end;
+
+exec pr_total_aluno;

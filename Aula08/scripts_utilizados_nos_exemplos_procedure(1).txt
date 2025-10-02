@@ -1,0 +1,93 @@
+create or replace procedure calc is
+ --
+ x1 number := 10;
+ x2 number := 5;
+ op varchar2(1) := '+';
+ res number;
+ --
+ begin
+ 	if (x1 + x2) = 0 then
+ 		dbms_output.put_line('Resultado: 0');
+ 	elsif op = '*' then
+ 		res := x1 * x2;
+ 	elsif op = '/' then
+ 		if x2 = 0 then
+ 			dbms_output.put_line('Erro de divisão por zero!');
+ 		else
+ 			res := x1 / x2;
+ 		end if;
+ 	elsif op = '-' then
+ 		res := x1 - x2;
+ 		if res = 0 then
+ 			dbms_output.put_line('Resultado igual a zero!');
+ 				elsif res < 0 then
+ 					dbms_output.put_line('Resultado menor que zero!');
+ 				elsif res > 0 then
+ 					dbms_output.put_line('Resultado maiorl a zero!');
+ 				end if;
+ 	elsif op = '+' then
+ 		res := x1 + x2;
+ 	else
+ 		dbms_output.put_line('Operador inválido!');
+ 	end if;
+ 	dbms_output.put_line('Resultado do cálculo: '||res);
+end;
+
+-- executando a procedure
+exec calc;
+
+execute calc;
+
+begin
+	calc;
+end;
+
+--grant execute on calc to public;
+
+alter procedure calc compile;
+
+drop procedure calc;
+
+select 
+	owner, 
+	object_type, 
+	status, 
+	created, 
+	last_ddl_time 
+		from all_objects 
+			where object_name = 'CALC';
+
+
+describe calc;
+
+
+select line, text from all_source where name = 'CALC';
+
+----
+
+
+create or replace procedure somar(x1 in number, x2 in number, resp out number) is
+begin
+	resp := x1 + x2;
+end;
+
+
+declare
+    exibir_resp varchar2(100);
+begin
+	somar(x1 => 3, 
+    	  x2 => 5,	
+    	  resp => exibir_resp);
+
+	dbms_output.put_line('Total da soma: ' || exibir_resp);
+end;
+
+declare
+    exibir_resp varchar2(100);
+begin
+	somar(2, 
+    	  7,	
+    	  exibir_resp);
+
+	dbms_output.put_line('Total da soma: ' || exibir_resp);
+end;
