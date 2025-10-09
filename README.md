@@ -61,6 +61,15 @@ A **Aula 04** introduziu um novo estudo de caso, desta vez sobre uma **clínica 
 
 👉 [Acessar o conteúdo completo da Aula 04.](Aula04/README.md)
 
+### 📝 Aula 05 — Introdução ao PL/SQL e Comandos de Fluxo
+A **Aula 05** introduziu o universo da programação procedural com **PL/SQL**. O foco principal foi na estrutura básica de um bloco anônimo (`DECLARE`, `BEGIN`, `END`) e no uso do pacote `DBMS_OUTPUT.PUT_LINE` para exibição de mensagens. Foram exploradas as estruturas de controle de fluxo e os comandos condicionais `IF-ELSIF-ELSE` para a tomada de decisões, aplicando lógicas como a determinação da situação de um aluno por média ou simulações de sorteio de números aleatórios.
+
+### 📝 Aula 07 — Lógica de Programação: CASE WHEN, Laços e Arrays
+Na **Aula 07**, aprofundamos em técnicas de programação procedural e SQL avançado. Foi introduzida a expressão `CASE WHEN` para realizar lógica condicional diretamente em consultas `SELECT`, permitindo a classificação de dados, como o status de estoque de um produto (e.g., `SEM ESTOQUE`, `DISPONÍVEL`). Além disso, foram estudados os laços de repetição (`WHILE`, `LOOP`, `FOR`) e as estruturas de dados **Arrays** (como tabelas associativas e `VARRAYs`) em blocos PL/SQL para manipulação eficiente e inserção de dados em lote.
+
+### 📝 Aula 08 & 09 — Stored Procedures, Functions e Cursores
+As aulas finais focaram em programas armazenados para persistir a lógica de negócio, introduzindo **Stored Procedures** e **Functions**. Foi detalhada a criação e execução desses subprogramas, enfatizando que as *Functions* sempre devem retornar um valor. Aprendemos a utilizar **parâmetros** para comunicação com esses programas (`IN` para entrada e `OUT` para saída) e introduzimos o conceito de **Cursores** explícitos para permitir a iteração e a manipulação de linhas de dados retornadas por um `SELECT` dentro de um bloco PL/SQL ou Procedure.
+
 ---
 
 ## 📄 Licença
