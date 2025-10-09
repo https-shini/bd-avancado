@@ -1,0 +1,33 @@
+create or replace procedure listarDepartamentos
+is
+  -- Definição de um cursor para selecionar todos os departamentos
+  CURSOR dept_cursor IS
+    SELECT deptno, name, location
+    FROM DEPARTMENTS;
+  
+  -- Variáveis para armazenar os valores do cursor
+  v_deptno DEPARTMENTS.deptno%TYPE;
+  v_name DEPARTMENTS.name%TYPE;
+  v_location DEPARTMENTS.location%TYPE;
+BEGIN
+  -- Abrir o cursor
+  OPEN dept_cursor;
+  
+  -- Loop para iterar sobre cada linha retornada pelo cursor
+  LOOP
+    -- Buscar a próxima linha do cursor
+    FETCH dept_cursor INTO v_deptno, v_name, v_location;
+    
+    -- Sair do loop se não houver mais linhas
+    EXIT WHEN dept_cursor%NOTFOUND;
+    
+    -- Exibir os valores da linha atual
+    DBMS_OUTPUT.PUT_LINE('Deptno: ' || v_deptno || ', Name: ' || v_name || ', Location: ' || v_location);
+  END LOOP;
+  
+  -- Fechar o cursor
+  CLOSE dept_cursor;
+END;
+
+
+exec listarDepartamentos;
