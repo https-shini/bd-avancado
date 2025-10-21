@@ -83,8 +83,6 @@
 
 ## 💾 Estrutura do Banco de Dados Oracle
 
-## 🔧 Stored Procedure: `jogarJokenpo`
-
 ### Código Completo
 
 ```sql
