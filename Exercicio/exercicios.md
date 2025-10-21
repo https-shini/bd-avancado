@@ -1,795 +1,295 @@
 # 📚 Laboratório de Banco de Dados Avançado
-## Soluções Completas dos Exercícios
 
-> **Atividade:** Máximo 3 integrantes | **Pontuação:** Até 2 pontos
+## 📋 Informações da Atividade
 
----
-
-## 📋 Índice de Conteúdo
-
-1. [Exercício 1 - Web Scraping de Preços](#exercício-1-comparador-de-preços-web-scraping)
-2. [Exercício 2 - Jokenpô em PL/SQL](#exercício-2-jogo-jokenpô-em-plsql)
-3. [Exercício 3 - Controle de Estoque](#exercício-3-controle-de-estoque-com-cursor)
-4. [Formato de Entrega](#formato-de-entrega)
+**Disciplina:** Laboratório de Banco de Dados Avançado  
+**Professor:** Me. Allan Vidal  
+**Curso:** Ciência da Computação – Universidade Cruzeiro do Sul  
+**Pontuação Total:** Até 2.0 pontos  
+**Formato:** Atividade em grupo (máximo 3 integrantes)
 
 ---
 
-# Exercício 1: Comparador de Preços (Web Scraping)
+## 📝 Exercícios Propostos
+
+### 🔹 [Exercício 1: Comparador de Preços - Web Scraping](./EXERCICIO_01.md)
 
 **Pontuação:** 1.0 ponto
 
-## 📌 Requisitos
+#### 📌 Enunciado
 
-| # | Requisito | Status |
-|---|-----------|--------|
-| 1 | Desenvolver aplicação em **Python** | ✅ |
-| 2 | Coletar dados de **mínimo 3 sites diferentes** | ✅ |
-| 3 | Usar biblioteca **BeautifulSoup** | ✅ |
-| 4 | Armazenar em banco de dados **MySQL** | ✅ |
-| 5 | Dados: ID, nome, valor, link de origem | ✅ |
-| 6 | Criar **Procedure** para ranking | ✅ |
-| 7 | Ordenação configurável (ASC/DESC) | ✅ |
+Você foi contratado para desenvolver uma aplicação em Python que auxilie os usuários na comparação de preços de produtos em diferentes aplicações web.
+
+#### 🎯 Requisitos Obrigatórios
+
+| # | Requisito | Peso |
+|---|-----------|------|
+| a | Coletar dados de **pelo menos 3 sites diferentes** utilizando web scraping (com BeautifulSoup) | 30% |
+| b | Armazenar em banco de dados **MySQL** com: id do produto, nome, valor e link de origem | 30% |
+| c | Criar e executar uma **procedure** que exiba ranking ordenado (ASC/DESC por parâmetro) | 40% |
+
+#### ✅ Critérios de Avaliação
+
+- **Web Scraping funcional** com BeautifulSoup em 3+ sites
+- **Persistência correta** dos dados no MySQL
+- **Stored Procedure parametrizada** para ranking
+- **Código limpo e documentado**
+- **Execução sem erros**
+
+#### 🛠️ Tecnologias
+
+- Python 3.x
+- MySQL 8.0+
+- Bibliotecas: `beautifulsoup4`, `requests`, `mysql-connector-python`
+
+#### 📊 Resumo da Solução
+
+A solução implementa:
+1. ✅ **3 funções de scraping** (Amazon, Mercado Livre, Shopee) usando BeautifulSoup
+2. ✅ **Classe `GerenciadorBanco`** para operações MySQL
+3. ✅ **Stored Procedure `sp_ranking_produtos`** com parâmetro ASC/DESC
+4. ✅ **Estrutura de tabelas** com índices otimizados
+
+**[📖 Ver documentação completa →](./EXERCICIO_01.md)**
 
 ---
 
-## 💾 Solução 1A: Criar Banco de Dados (MySQL)
+### 🔹 [Exercício 2: Jogo Jokenpô em PL/SQL](./EXERCICIO_02.md)
 
-```sql
--- ============================================================
--- CRIAR BANCO DE DADOS
--- ============================================================
-CREATE DATABASE IF NOT EXISTS comparador_precos;
-USE comparador_precos;
+**Pontuação:** 0.5 ponto
 
--- ============================================================
--- TABELA PRINCIPAL DE PRODUTOS
--- ============================================================
-CREATE TABLE produtos (
-    id_produto INT PRIMARY KEY AUTO_INCREMENT,
-    nome_produto VARCHAR(255) NOT NULL,
-    valor_produto DECIMAL(10, 2) NOT NULL,
-    link_origem VARCHAR(500) NOT NULL,
-    site_origem VARCHAR(100) NOT NULL,
-    data_coleta DATETIME DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_nome (nome_produto),
-    INDEX idx_valor (valor_produto),
-    INDEX idx_site (site_origem)
-);
+#### 📌 Enunciado
 
--- ============================================================
--- TABELA DE HISTÓRICO DE PREÇOS
--- ============================================================
-CREATE TABLE historico_precos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    id_produto INT NOT NULL,
-    valor_antigo DECIMAL(10, 2),
-    valor_novo DECIMAL(10, 2),
-    data_atualizacao DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_produto) REFERENCES produtos(id_produto),
-    INDEX idx_produto (id_produto)
-);
+Utilizando PL/SQL, crie um script que simule o jogo Jokenpô (Pedra, Papel e Tesoura).
 
--- ============================================================
--- CONFIRMAR CRIAÇÃO
--- ============================================================
-SHOW TABLES;
-DESCRIBE produtos;
+#### 🎯 Requisitos Obrigatórios
+
+| # | Requisito | Peso |
+|---|-----------|------|
+| a | Usuário informa jogada; **Oracle gera jogada do PC aleatoriamente** | 30% |
+| b | Comparar jogadas e **definir resultado** (empate, vitória usuário ou PC) | 30% |
+| c | **Salvar cada jogada** em tabela e criar consulta com estatísticas completas | 40% |
+
+#### ✅ Critérios de Avaliação
+
+- **Geração aleatória** correta usando `DBMS_RANDOM`
+- **Lógica de comparação** implementada corretamente
+- **Persistência** de todas as jogadas
+- **Views/Consultas** para estatísticas (vitórias usuário, PC, empates)
+- **PL/SQL bem estruturado** com tratamento adequado
+
+#### 🛠️ Tecnologias
+
+- Oracle Database (Oracle SQL Live)
+- PL/SQL
+- Package `DBMS_RANDOM` e `DBMS_OUTPUT`
+
+#### 📊 Resumo da Solução
+
+A solução implementa:
+1. ✅ **Tabela `tbJokenpo`** com histórico completo de jogadas
+2. ✅ **Procedure `jogarJokenpo`** com geração aleatória e lógica de comparação
+3. ✅ **View `vwEstatisticasJokenpo`** para totais agregados
+4. ✅ **View `vwHistoricoJokenpo`** para consulta de partidas
+
+**[📖 Ver documentação completa →](./EXERCICIO_02.md)**
+
+---
+
+### 🔹 [Exercício 3: Controle de Estoque com Cursor](./EXERCICIO_03.md)
+
+**Pontuação:** 0.5 ponto
+
+#### 📌 Enunciado
+
+Crie e execute uma procedure que receba o ID de um produto e sua quantidade, verifique estoque e processe adequadamente. Além disso, crie uma procedure com cursor que exiba produtos críticos.
+
+#### 🎯 Requisitos Obrigatórios
+
+| # | Requisito | Peso |
+|---|-----------|------|
+| 1 | Procedure recebe **ID do produto e quantidade** | 20% |
+| 2 | **Verificar estoque disponível** | 20% |
+| 3 | Se OK: **inserir em tbPedidos e baixar estoque** | 20% |
+| 4 | Se não: **registrar em tabela de log** | 20% |
+| 5 | Procedure com **CURSOR** para listar produtos com **classificação baixa ou sem estoque** | 20% |
+
+#### ✅ Critérios de Avaliação
+
+- **Validação de estoque** correta
+- **Transações consistentes** (pedidos e baixa sincronizados)
+- **Log de erros** implementado
+- **CURSOR explícito** corretamente declarado e utilizado
+- **Tratamento de exceções** (produto inexistente, etc.)
+
+#### 🛠️ Tecnologias
+
+- Oracle Database (Oracle SQL Live)
+- PL/SQL
+- Cursores explícitos
+- Tratamento de exceções
+
+#### 📊 Resumo da Solução
+
+A solução implementa:
+1. ✅ **3 tabelas relacionadas**: `tbProdutos`, `tbPedidos`, `tbLogEstoque`
+2. ✅ **Procedure `realizarPedido`** com validação e tratamento de exceções
+3. ✅ **Procedure `listarProdutosCriticos`** com CURSOR explícito
+4. ✅ **3 views** para consulta: pedidos, logs e produtos críticos
+
+**[📖 Ver documentação completa →](./EXERCICIO_03.md)**
+
+---
+
+## 📦 Formato de Entrega
+
+Conforme especificado no enunciado:
+
+### 📄 Arquivos Obrigatórios
+
+1. **Código-fonte** de cada um dos exercícios
+2. **Print da tela** após a execução de cada código
+3. **(Opcional)** Vídeo demonstrando a aplicação do Exercício 1
+
+### 📁 Estrutura de Arquivos Deste Repositório
+
+```
+LBDA_Exercicios/
+├── README.md                    # Este arquivo (visão geral)
+├── EXERCICIO_01.md             # Documentação completa - Web Scraping
+├── EXERCICIO_02.md             # Documentação completa - Jokenpô
+├── EXERCICIO_03.md             # Documentação completa - Estoque
+│
+├── exercicio01/
+│   ├── database.sql            # Script MySQL
+│   ├── main.py                 # Aplicação Python
+│   └── requirements.txt        # Dependências
+│
+├── exercicio02/
+│   └── jokenpo.sql            # Script Oracle completo
+│
+├── exercicio03/
+│   └── estoque.sql            # Script Oracle completo
+│
+└── prints/
+    ├── ex01_python_output.png
+    ├── ex01_mysql_tables.png
+    ├── ex02_jogadas.png
+    ├── ex02_estatisticas.png
+    ├── ex03_testes.png
+    ├── ex03_cursor.png
+    └── ex03_views.png
 ```
 
 ---
 
-## 💾 Solução 1B: Criar Procedure de Ranking (MySQL)
+## 🎯 Critérios Gerais de Avaliação
 
-```sql
--- ============================================================
--- PROCEDURE: RANKING DE PRODUTOS
--- Parâmetro: p_ordenacao = 'ASC' (menor→maior) ou 'DESC' (maior→menor)
--- ============================================================
-DELIMITER //
+### Pontuação por Exercício
 
-CREATE PROCEDURE sp_ranking_produtos(
-    IN p_ordenacao VARCHAR(10)
-)
-BEGIN
-    DECLARE v_total INT;
-    
-    -- Validar parâmetro
-    IF p_ordenacao NOT IN ('ASC', 'DESC') THEN
-        SELECT 'ERRO: Parâmetro inválido! Use ASC ou DESC' AS mensagem;
-    ELSE
-        -- Contar total de produtos
-        SELECT COUNT(*) INTO v_total FROM produtos;
-        
-        IF v_total = 0 THEN
-            SELECT 'Nenhum produto registrado no banco de dados' AS mensagem;
-        ELSE
-            -- Exibir ranking
-            IF p_ordenacao = 'ASC' THEN
-                SELECT 
-                    ROW_NUMBER() OVER (ORDER BY valor_produto ASC) AS ranking,
-                    id_produto,
-                    nome_produto,
-                    valor_produto,
-                    site_origem,
-                    link_origem,
-                    data_coleta
-                FROM produtos
-                ORDER BY valor_produto ASC;
-            ELSE
-                SELECT 
-                    ROW_NUMBER() OVER (ORDER BY valor_produto DESC) AS ranking,
-                    id_produto,
-                    nome_produto,
-                    valor_produto,
-                    site_origem,
-                    link_origem,
-                    data_coleta
-                FROM produtos
-                ORDER BY valor_produto DESC;
-            END IF;
-        END IF;
-    END IF;
-END //
+| Exercício | Pontos | Descrição |
+|-----------|--------|-----------|
+| 1 - Web Scraping | 1.0 | Python + MySQL + BeautifulSoup + Procedure |
+| 2 - Jokenpô | 0.5 | PL/SQL + Aleatoriedade + Persistência |
+| 3 - Estoque | 0.5 | PL/SQL + Cursor + Validação + Log |
+| **TOTAL** | **2.0** | **Nota máxima da atividade** |
 
-DELIMITER ;
+### Critérios Transversais
 
--- ============================================================
--- TESTAR PROCEDURE
--- ============================================================
-CALL sp_ranking_produtos('ASC');   -- Menor para maior preço
-CALL sp_ranking_produtos('DESC');  -- Maior para menor preço
-```
+- ✅ **Funcionalidade completa** (atende todos os requisitos)
+- ✅ **Qualidade do código** (organização, indentação, nomenclatura)
+- ✅ **Documentação** (comentários, README, explicações)
+- ✅ **Tratamento de erros** (exceções, validações)
+- ✅ **Boas práticas** (SQL injection prevention, commits adequados)
 
 ---
 
-## 🐍 Solução 1C: Código Python com Web Scraping
+## 🚀 Como Usar Este Repositório
 
-```python
-# ============================================================
-# COMPARADOR DE PREÇOS - WEB SCRAPING
-# Bibliotecas necessárias: pip install requests beautifulsoup4 mysql-connector-python
-# ============================================================
-
-import requests
-from bs4 import BeautifulSoup
-import mysql.connector
-from datetime import datetime
-import time
-
-# ============================================================
-# CONFIGURAÇÃO DO BANCO DE DADOS
-# ============================================================
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'sua_senha',  # ⚠️ ALTERE PARA SUA SENHA
-    'database': 'comparador_precos'
-}
-
-# ============================================================
-# CLASSE PARA GERENCIAR BANCO DE DADOS
-# ============================================================
-class GerenciadorBanco:
-    def __init__(self, config):
-        self.config = config
-        self.conexao = None
-        self.cursor = None
-        self.conectar()
-    
-    def conectar(self):
-        try:
-            self.conexao = mysql.connector.connect(**self.config)
-            self.cursor = self.conexao.cursor()
-            print("✓ Conexão com banco de dados estabelecida")
-        except mysql.connector.Error as err:
-            print(f"✗ Erro ao conectar: {err}")
-            exit(1)
-    
-    def inserir_produto(self, nome, valor, link, site):
-        try:
-            sql = """
-            INSERT INTO produtos (nome_produto, valor_produto, link_origem, site_origem)
-            VALUES (%s, %s, %s, %s)
-            """
-            self.cursor.execute(sql, (nome, valor, link, site))
-            self.conexao.commit()
-            return True
-        except mysql.connector.Error as err:
-            print(f"✗ Erro ao inserir: {err}")
-            return False
-    
-    def limpar_dados(self):
-        try:
-            self.cursor.execute("TRUNCATE TABLE produtos")
-            self.conexao.commit()
-            print("✓ Dados anteriores removidos")
-        except mysql.connector.Error as err:
-            print(f"✗ Erro ao limpar: {err}")
-    
-    def exibir_ranking(self, ordenacao='ASC'):
-        try:
-            self.cursor.callproc('sp_ranking_produtos', [ordenacao])
-            for result in self.cursor.stored_results():
-                resultados = result.fetchall()
-                return resultados
-        except mysql.connector.Error as err:
-            print(f"✗ Erro ao exibir ranking: {err}")
-            return []
-    
-    def fechar(self):
-        if self.cursor:
-            self.cursor.close()
-        if self.conexao:
-            self.conexao.close()
-        print("✓ Conexão fechada")
-
-# ============================================================
-# FUNÇÃO: SCRAPING - SITE 1 (Amazon)
-# ============================================================
-def scrape_amazon():
-    print("\n[1/3] Coletando dados do Amazon...")
-    produtos = []
-    
-    try:
-        url = "https://www.amazon.com.br/s?k=notebook"
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-        
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        
-        soup = BeautifulSoup(response.content, 'html.parser')
-        items = soup.find_all('div', {'data-component-type': 's-search-result'})
-        
-        for item in items[:5]:
-            try:
-                # Nome do produto
-                nome_elem = item.find('h2', {'class': 's-size-mini'})
-                nome = nome_elem.text.strip() if nome_elem else 'N/A'
-                
-                # Preço
-                preco_elem = item.find('span', {'class': 'a-price-whole'})
-                if preco_elem:
-                    preco_text = preco_elem.text.replace('R$', '').replace('.', '').replace(',', '.')
-                    preco = float(preco_text.strip())
-                else:
-                    continue
-                
-                # Link
-                link_elem = item.find('a', {'class': 's-link'})
-                link = 'https://www.amazon.com.br' + link_elem['href'] if link_elem else 'N/A'
-                
-                produtos.append({
-                    'nome': nome,
-                    'preco': preco,
-                    'link': link,
-                    'site': 'Amazon'
-                })
-                
-            except Exception as e:
-                continue
-        
-        print(f"   ✓ {len(produtos)} produtos coletados do Amazon")
-        return produtos
-        
-    except Exception as e:
-        print(f"   ✗ Erro ao coletar Amazon: {e}")
-        return []
-
-# ============================================================
-# FUNÇÃO: SCRAPING - SITE 2 (Mercado Livre)
-# ============================================================
-def scrape_mercado_livre():
-    print("\n[2/3] Coletando dados do Mercado Livre...")
-    produtos = []
-    
-    try:
-        url = "https://lista.mercadolivre.com.br/notebook"
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-        
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        
-        soup = BeautifulSoup(response.content, 'html.parser')
-        items = soup.find_all('div', {'class': 'ui-search-result__wrapper'})
-        
-        for item in items[:5]:
-            try:
-                # Nome do produto
-                nome_elem = item.find('h2', {'class': 'ui-search-item__title'})
-                nome = nome_elem.text.strip() if nome_elem else 'N/A'
-                
-                # Preço
-                preco_elem = item.find('span', {'class': 'price-tag-fraction'})
-                if preco_elem:
-                    preco_text = preco_elem.text.replace('R$', '').replace('.', '').replace(',', '.')
-                    preco = float(preco_text.strip())
-                else:
-                    continue
-                
-                # Link
-                link_elem = item.find('a', {'class': 'ui-search-link'})
-                link = link_elem['href'] if link_elem else 'N/A'
-                
-                produtos.append({
-                    'nome': nome,
-                    'preco': preco,
-                    'link': link,
-                    'site': 'Mercado Livre'
-                })
-                
-            except Exception as e:
-                continue
-        
-        print(f"   ✓ {len(produtos)} produtos coletados do Mercado Livre")
-        return produtos
-        
-    except Exception as e:
-        print(f"   ✗ Erro ao coletar Mercado Livre: {e}")
-        return []
-
-# ============================================================
-# FUNÇÃO: SCRAPING - SITE 3 (Shopee)
-# ============================================================
-def scrape_shopee():
-    print("\n[3/3] Coletando dados do Shopee...")
-    produtos = []
-    
-    try:
-        url = "https://shopee.com.br/search?keyword=notebook"
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-        
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        
-        soup = BeautifulSoup(response.content, 'html.parser')
-        items = soup.find_all('div', {'class': 'shopee-search-item-result'})
-        
-        for item in items[:5]:
-            try:
-                # Nome do produto
-                nome_elem = item.find('div', {'class': 'KCqxqK'})
-                nome = nome_elem.text.strip() if nome_elem else 'N/A'
-                
-                # Preço
-                preco_elem = item.find('span', {'class': 'ooOvZ6'})
-                if preco_elem:
-                    preco_text = preco_elem.text.replace('R$', '').replace('.', '').replace(',', '.')
-                    preco = float(preco_text.strip())
-                else:
-                    continue
-                
-                # Link
-                link_elem = item.find('a')
-                link = link_elem['href'] if link_elem else 'N/A'
-                
-                produtos.append({
-                    'nome': nome,
-                    'preco': preco,
-                    'link': link,
-                    'site': 'Shopee'
-                })
-                
-            except Exception as e:
-                continue
-        
-        print(f"   ✓ {len(produtos)} produtos coletados do Shopee")
-        return produtos
-        
-    except Exception as e:
-        print(f"   ✗ Erro ao coletar Shopee: {e}")
-        return []
-
-# ============================================================
-# FUNÇÃO PRINCIPAL
-# ============================================================
-def main():
-    print("=" * 70)
-    print("   COMPARADOR DE PREÇOS - WEB SCRAPING")
-    print("=" * 70)
-    
-    # Conectar ao banco
-    banco = GerenciadorBanco(DB_CONFIG)
-    banco.limpar_dados()
-    
-    # Coletar de todos os sites
-    todos_produtos = []
-    todos_produtos.extend(scrape_amazon())
-    time.sleep(2)  # Pausa para não sobrecarregar servidores
-    todos_produtos.extend(scrape_mercado_livre())
-    time.sleep(2)
-    todos_produtos.extend(scrape_shopee())
-    
-    # Inserir no banco
-    print("\n" + "=" * 70)
-    print("   INSERINDO DADOS NO BANCO DE DADOS")
-    print("=" * 70)
-    
-    contador = 0
-    for produto in todos_produtos:
-        if banco.inserir_produto(
-            produto['nome'],
-            produto['preco'],
-            produto['link'],
-            produto['site']
-        ):
-            contador += 1
-    
-    print(f"✓ {contador} produtos inseridos com sucesso!\n")
-    
-    # Exibir ranking
-    print("=" * 70)
-    print("   RANKING: MENOR PARA MAIOR PREÇO (ASC)")
-    print("=" * 70)
-    ranking_asc = banco.exibir_ranking('ASC')
-    
-    if ranking_asc:
-        print(f"{'Rank':<6} {'Produto':<40} {'Preço':<12} {'Site':<20}")
-        print("-" * 78)
-        for row in ranking_asc:
-            print(f"{row[0]:<6} {row[2][:40]:<40} R$ {row[3]:<10.2f} {row[4]:<20}")
-    
-    print("\n" + "=" * 70)
-    print("   RANKING: MAIOR PARA MENOR PREÇO (DESC)")
-    print("=" * 70)
-    ranking_desc = banco.exibir_ranking('DESC')
-    
-    if ranking_desc:
-        print(f"{'Rank':<6} {'Produto':<40} {'Preço':<12} {'Site':<20}")
-        print("-" * 78)
-        for row in ranking_desc:
-            print(f"{row[0]:<6} {row[2][:40]:<40} R$ {row[3]:<10.2f} {row[4]:<20}")
-    
-    # Fechar conexão
-    banco.fechar()
-    print("\n✓ Processo finalizado com sucesso!")
-
-# ============================================================
-# EXECUTAR
-# ============================================================
-if __name__ == '__main__':
-    main()
-```
-
----
-
-## 📦 Instalação das Dependências
+### 1️⃣ Clonar o Repositório
 
 ```bash
-# Instalar bibliotecas necessárias
-pip install requests beautifulsoup4 mysql-connector-python
-
-# Verificar instalação
-pip show requests beautifulsoup4 mysql-connector-python
+git clone <url-do-repositorio>
+cd LBDA_Exercicios
 ```
 
----
+### 2️⃣ Exercício 1 (Python + MySQL)
 
-# Exercício 2: Jogo Jokenpô em PL/SQL
-
-**Pontuação:** 0.5 ponto
-
-## 📌 Requisitos
-
-| # | Requisito | Status |
-|---|-----------|--------|
-| 1 | Simular jogo Jokenpô em **PL/SQL** | ✅ |
-| 2 | Usuário informa sua jogada | ✅ |
-| 3 | Oracle gera jogada do PC **aleatoriamente** | ✅ |
-| 4 | Comparar jogadas e definir resultado | ✅ |
-| 5 | Salvar jogadas em tabela | ✅ |
-| 6 | Consultar: vitórias usuário, PC e empates | ✅ |
-
----
-
-## 💾 Solução 2A: Criar Banco de Dados (Oracle)
-
-```sql
--- ============================================================
--- CRIAR TABELA DE JOGADAS JOKENPÔ
--- ============================================================
-CREATE TABLE tb_jogadas_jokenpo (
-    id_jogada NUMBER PRIMARY KEY,
-    jogada_usuario VARCHAR2(50) NOT NULL,
-    jogada_pc VARCHAR2(50) NOT NULL,
-    resultado VARCHAR2(50) NOT NULL,
-    data_jogada TIMESTAMP DEFAULT SYSTIMESTAMP
-);
-
--- ============================================================
--- CRIAR SEQUÊNCIA PARA AUTO_INCREMENT
--- ============================================================
-CREATE SEQUENCE seq_jogadas_jokenpo
-    START WITH 1
-    INCREMENT BY 1
-    NOCACHE;
-
--- ============================================================
--- CRIAR ÍNDICES
--- ============================================================
-CREATE INDEX idx_resultado ON tb_jogadas_jokenpo(resultado);
-CREATE INDEX idx_data ON tb_jogadas_jokenpo(data_jogada);
-
--- ============================================================
--- VERIFICAR CRIAÇÃO
--- ============================================================
-DESC tb_jogadas_jokenpo;
+```bash
+cd exercicio01
+pip install -r requirements.txt
+# Configurar senha no arquivo main.py
+mysql -u root -p < database.sql
+python main.py
 ```
 
----
+### 3️⃣ Exercício 2 (Oracle)
 
-## 💾 Solução 2B: Bloco PL/SQL - Jogo Completo (Oracle)
+Acessar [Oracle SQL Live](https://livesql.oracle.com/) e executar `exercicio02/jokenpo.sql`
 
-```sql
--- ============================================================
--- BLOCO PL/SQL: JOGO JOKENPÔ
--- ============================================================
+### 4️⃣ Exercício 3 (Oracle)
 
-SET SERVEROUTPUT ON;
-
-DECLARE
-    -- Variáveis para o jogo
-    v_jogada_usuario VARCHAR2(50);
-    v_jogada_pc VARCHAR2(50);
-    v_resultado VARCHAR2(50);
-    v_numero_aleatorio NUMBER;
-    v_num_jogadas NUMBER := 0;
-    
-BEGIN
-    -- Inicializar gerador de números aleatórios
-    DBMS_RANDOM.INITIALIZE(TO_CHAR(SYSDATE, 'DDMMYYSSHHMISS'));
-    
-    -- Loop para jogar múltiplas rodadas
-    FOR v_rodada IN 1..5 LOOP
-        DBMS_OUTPUT.PUT_LINE(CHR(10) || '========================================');
-        DBMS_OUTPUT.PUT_LINE('          JOGO JOKENPÔ - RODADA ' || v_rodada);
-        DBMS_OUTPUT.PUT_LINE('========================================');
-        
-        -- Simular entrada do usuário (trocar números para teste)
-        -- Em um sistema real, receberia input do usuário
-        v_numero_aleatorio := ROUND(DBMS_RANDOM.VALUE(1, 3));
-        v_jogada_usuario := CASE v_numero_aleatorio
-            WHEN 1 THEN 'Pedra'
-            WHEN 2 THEN 'Papel'
-            WHEN 3 THEN 'Tesoura'
-        END;
-        
-        -- Gerar jogada aleatória do computador
-        v_numero_aleatorio := ROUND(DBMS_RANDOM.VALUE(1, 3));
-        v_jogada_pc := CASE v_numero_aleatorio
-            WHEN 1 THEN 'Pedra'
-            WHEN 2 THEN 'Papel'
-            WHEN 3 THEN 'Tesoura'
-        END;
-        
-        -- Determinar resultado da rodada
-        IF v_jogada_usuario = v_jogada_pc THEN
-            v_resultado := 'Empate';
-            
-        ELSIF (v_jogada_usuario = 'Pedra' AND v_jogada_pc = 'Tesoura') OR
-              (v_jogada_usuario = 'Papel' AND v_jogada_pc = 'Pedra') OR
-              (v_jogada_usuario = 'Tesoura' AND v_jogada_pc = 'Papel') THEN
-            v_resultado := 'Vitória do Usuário';
-            
-        ELSE
-            v_resultado := 'Vitória do PC';
-            
-        END IF;
-        
-        -- Exibir resultado da rodada
-        DBMS_OUTPUT.PUT_LINE('Você jogou: ' || LPAD(v_jogada_usuario, 10));
-        DBMS_OUTPUT.PUT_LINE('PC jogou:   ' || LPAD(v_jogada_pc, 10));
-        DBMS_OUTPUT.PUT_LINE('Resultado:  ' || v_resultado);
-        DBMS_OUTPUT.PUT_LINE('========================================');
-        
-        -- Inserir na tabela de histórico
-        INSERT INTO tb_jogadas_jokenpo 
-        VALUES (
-            seq_jogadas_jokenpo.NEXTVAL, 
-            v_jogada_usuario, 
-            v_jogada_pc, 
-            v_resultado, 
-            SYSTIMESTAMP
-        );
-        
-        v_num_jogadas := v_num_jogadas + 1;
-        
-    END LOOP;
-    
-    -- Confirmar inserção
-    COMMIT;
-    
-    -- Exibir estatísticas finais
-    DBMS_OUTPUT.PUT_LINE(CHR(10) || CHR(10) || '=======================================');
-    DBMS_OUTPUT.PUT_LINE('      ESTATÍSTICAS FINAIS (5 RODADAS)');
-    DBMS_OUTPUT.PUT_LINE('=======================================');
-    
-    FOR rec IN (
-        SELECT 
-            resultado,
-            COUNT(*) total
-        FROM tb_jogadas_jokenpo
-        WHERE data_jogada >= TRUNC(SYSDATE)
-        GROUP BY resultado
-        ORDER BY CASE resultado
-            WHEN 'Vitória do Usuário' THEN 1
-            WHEN 'Vitória do PC' THEN 2
-            WHEN 'Empate' THEN 3
-        END
-    ) LOOP
-        DBMS_OUTPUT.PUT_LINE(RPAD(rec.resultado, 25) || ': ' || LPAD(rec.total, 2) || ' rodada(s)');
-    END LOOP;
-    
-    DBMS_OUTPUT.PUT_LINE('=======================================');
-    
-EXCEPTION
-    WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('ERRO: ' || SQLERRM);
-        ROLLBACK;
-END;
-/
-```
+Acessar [Oracle SQL Live](https://livesql.oracle.com/) e executar `exercicio03/estoque.sql`
 
 ---
 
-## 💾 Solução 2C: Procedure com Parâmetro (Oracle)
+## 📚 Conteúdo das Aulas Aplicado
 
-```sql
--- ============================================================
--- PROCEDURE: JOGAR JOKENPÔ
--- Parâmetro: p_jogada_usuario (Pedra, Papel, Tesoura)
--- ============================================================
+### Conceitos Utilizados
 
-CREATE OR REPLACE PROCEDURE sp_jogar_jokenpo(
-    p_jogada_usuario IN VARCHAR2
-) AS
-    v_jogada_pc VARCHAR2(50);
-    v_resultado VARCHAR2(50);
-    v_numero_aleatorio NUMBER;
-    
-BEGIN
-    -- Validar entrada
-    IF UPPER(p_jogada_usuario) NOT IN ('PEDRA', 'PAPEL', 'TESOURA') THEN
-        DBMS_OUTPUT.PUT_LINE('✗ ERRO: Digite uma jogada válida!');
-        DBMS_OUTPUT.PUT_LINE('   Opções: Pedra, Papel ou Tesoura');
-        RETURN;
-    END IF;
-    
-    -- Gerar jogada aleatória do PC
-    DBMS_RANDOM.INITIALIZE(TO_CHAR(SYSDATE, 'DDMMYYSSHHMISS'));
-    v_numero_aleatorio := ROUND(DBMS_RANDOM.VALUE(1, 3));
-    v_jogada_pc := CASE v_numero_aleatorio
-        WHEN 1 THEN 'Pedra'
-        WHEN 2 THEN 'Papel'
-        WHEN 3 THEN 'Tesoura'
-    END;
-    
-    -- Comparar jogadas
-    IF UPPER(p_jogada_usuario) = v_jogada_pc THEN
-        v_resultado := 'Empate';
-        
-    ELSIF (UPPER(p_jogada_usuario) = 'PEDRA' AND v_jogada_pc = 'Tesoura') OR
-          (UPPER(p_jogada_usuario) = 'PAPEL' AND v_jogada_pc = 'Pedra') OR
-          (UPPER(p_jogada_usuario) = 'TESOURA' AND v_jogada_pc = 'Papel') THEN
-        v_resultado := 'Vitória do Usuário';
-        
-    ELSE
-        v_resultado := 'Vitória do PC';
-        
-    END IF;
-    
-    -- Exibir resultado
-    DBMS_OUTPUT.PUT_LINE('');
-    DBMS_OUTPUT.PUT_LINE('╔═══════════════════════════════════════╗');
-    DBMS_OUTPUT.PUT_LINE('║         RESULTADO DA RODADA           ║');
-    DBMS_OUTPUT.PUT_LINE('╚═══════════════════════════════════════╝');
-    DBMS_OUTPUT.PUT_LINE('  Você jogou:  ' || RPAD(UPPER(p_jogada_usuario), 15));
-    DBMS_OUTPUT.PUT_LINE('  PC jogou:    ' || RPAD(v_jogada_pc, 15));
-    DBMS_OUTPUT.PUT_LINE('  Resultado:   ' || v_resultado);
-    DBMS_OUTPUT.PUT_LINE('');
-    
-    -- Inserir no histórico
-    INSERT INTO tb_jogadas_jokenpo 
-    VALUES (seq_jogadas_jokenpo.NEXTVAL, UPPER(p_jogada_usuario), v_jogada_pc, v_resultado, SYSTIMESTAMP);
-    COMMIT;
-    
-EXCEPTION
-    WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('ERRO: ' || SQLERRM);
-END sp_jogar_jokenpo;
-/
-```
+| Conceito | Exercício | Aula |
+|----------|-----------|------|
+| **Stored Procedures** | 1, 2, 3 | Aula 08 |
+| **Views** | 2, 3 | Aula 04 |
+| **Cursores Explícitos** | 3 | Aula 09 |
+| **PL/SQL Básico** | 2, 3 | Aula 05 |
+| **IF-ELSIF-ELSE** | 2, 3 | Aula 05 |
+| **CASE WHEN** | 1, 2, 3 | Aula 07 |
+| **Tratamento de Exceções** | 3 | Aula 08 |
+| **Parâmetros IN/OUT** | 1, 2, 3 | Aula 08 |
+| **INSERT, UPDATE, DELETE** | 1, 2, 3 | Aula 03 |
 
 ---
 
-## 💾 Solução 2D: Consultas para Estatísticas (Oracle)
+## 🔗 Links Úteis
 
-```sql
--- ============================================================
--- CONSULTA 1: TODAS AS JOGADAS REGISTRADAS
--- ============================================================
-SELECT 
-    id_jogada,
-    jogada_usuario,
-    jogada_pc,
-    resultado,
-    TO_CHAR(data_jogada, 'DD/MM/YYYY HH:MI:SS') AS data_hora
-FROM tb_jogadas_jokenpo
-ORDER BY data_jogada DESC;
-
--- ============================================================
--- CONSULTA 2: ESTATÍSTICAS GERAIS
--- ============================================================
-SELECT 
-    SUM(CASE WHEN resultado = 'Vitória do Usuário' THEN 1 ELSE 0 END) AS total_vitoria_usuario,
-    SUM(CASE WHEN resultado = 'Vitória do PC' THEN 1 ELSE 0 END) AS total_vitoria_pc,
-    SUM(CASE WHEN resultado = 'Empate' THEN 1 ELSE 0 END) AS total_empates,
-    COUNT(*) AS total_jogadas
-FROM tb_jogadas_jokenpo;
-
--- ============================================================
--- CONSULTA 3: PERCENTUAIS
--- ============================================================
-SELECT 
-    resultado,
-    COUNT(*) AS total,
-    ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM tb_jogadas_jokenpo), 2) AS percentual
-FROM tb_jogadas_jokenpo
-GROUP BY resultado
-ORDER BY total DESC;
-
--- ============================================================
--- CONSULTA 4: JOGADAS REALIZADAS HOJE
--- ============================================================
-SELECT 
-    COUNT(*) AS jogadas_hoje,
-    SUM(CASE WHEN resultado = 'Vitória do Usuário' THEN 1 ELSE 0 END) AS vitoria_usuario_hoje,
-    SUM(CASE WHEN resultado = 'Vitória do PC' THEN 1 ELSE 0 END) AS vitoria_pc_hoje
-FROM tb_jogadas_jokenpo
-WHERE TRUNC(data_jogada) = TRUNC(SYSDATE);
-
--- ============================================================
--- TESTAR PROCEDURE
--- ============================================================
-SET SERVEROUTPUT ON;
-EXEC sp_jogar_jokenpo('Pedra');
-EXEC sp_jogar_jokenpo('Papel');
-EXEC sp_jogar_jokenpo('Tesoura');
-```
+- [Oracle SQL Live](https://livesql.oracle.com/) - Ambiente Oracle online
+- [MySQL Documentation](https://dev.mysql.com/doc/) - Documentação MySQL
+- [BeautifulSoup Docs](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) - Documentação BeautifulSoup
+- [Python mysql-connector](https://dev.mysql.com/doc/connector-python/en/) - Conector Python-MySQL
 
 ---
 
-# Exercício 3: Controle de Estoque com Cursor
+## 👥 Equipe
 
-**Pontuação:** 0.5 ponto
-
-## 📌 Requisitos
-
-| # | Requisito | Status |
-|---|-----------|--------|
-| 1 | Procedure recebe: ID do produto e quantidade | ✅ |
-| 2 | Verificar estoque disponível | ✅ |
-| 3 | Se SIM: inserir em tbPedidos e baixar estoque | ✅ |
-| 4 | Se NÃO: registrar em tabela de log | ✅ |
-| 5 | Procedure com cursor para produtos críticos | ✅ |
-| 6 | Exibir: classificação baixa ou sem estoque | ✅ |
+- **Integrante 1:** [Nome]
+- **Integrante 2:** [Nome]
+- **Integrante 3:** [Nome]
 
 ---
 
-## 💾 Solução 3A: Criar Banco de Dados (Oracle)
+## 📄 Licença
 
-```sql
--- ============================================================
--- CRIAR TABELAS
--- ============================================================
+Este projeto foi desenvolvido para fins educacionais como parte da disciplina de Laboratório de Banco de Dados Avançado.
 
--- Tabela de produtos
-CREATE TABLE tb_produtos (
-    id_produto NUMBER PRIMARY KEY,
-    nome_produto VARCHAR2(100) NOT NULL,
-    valor_produto NUMBER(10, 2) NOT NULL,
-    quantidade_estoque NUMBER NOT NULL,
-    classificacao VARCHAR2(50) DEFAULT 'Normal'
-);
+---
 
--- Tabela de pedidos
-CREATE TABLE tb_
+## ✅ Checklist de Entrega
+
+- [ ] Código do Exercício 1 completo e testado
+- [ ] Código do Exercício 2 completo e testado
+- [ ] Código do Exercício 3 completo e testado
+- [ ] Prints de todos os exercícios capturados
+- [ ] Documentação de cada exercício completa
+- [ ] README.md principal atualizado
+- [ ] (Opcional) Vídeo do Exercício 1
+- [ ] Revisão final de todos os arquivos
+
+---
+
+**📅 Data de Entrega:** [Inserir data]  
+**📧 Contato:** [Inserir email para dúvidas]
+
+---
+
+> 💡 **Dica:** Leia atentamente cada documento específico (EXERCICIO_XX.md) para instruções detalhadas de execução e explicações técnicas.
