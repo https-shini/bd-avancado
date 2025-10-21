@@ -448,130 +448,171 @@ exercicio01/
 
 ## 🔗 Código Completo
 
-### 📄 `database.sql`
+### 📄 `Database.sql`
 
 ```sql
--- ============================================================
--- EXERCÍCIO 01: BANCO DE DADOS MYSQL
--- ============================================================
-
-DROP DATABASE IF EXISTS comparador_precos;
-CREATE DATABASE comparador_precos;
-USE comparador_precos;
-
-CREATE TABLE produtos (
-    id_produto INT PRIMARY KEY AUTO_INCREMENT,
-    nome_produto VARCHAR(255) NOT NULL,
-    valor_produto DECIMAL(10, 2) NOT NULL,
-    link_origem VARCHAR(500) NOT NULL,
-    site_origem VARCHAR(100) NOT NULL,
-    data_coleta DATETIME DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_valor (valor_produto)
-);
-
-DELIMITER //
-
-CREATE PROCEDURE sp_ranking_produtos(
-    IN p_ordenacao VARCHAR(10)
-)
-BEGIN
-    DECLARE v_total INT;
-    
-    IF p_ordenacao NOT IN ('ASC', 'DESC') THEN
-        SELECT 'ERRO: Use ASC ou DESC' AS mensagem;
-    ELSE
-        SELECT COUNT(*) INTO v_total FROM produtos;
-        
-        IF v_total = 0 THEN
-            SELECT 'Nenhum produto cadastrado' AS mensagem;
-        ELSE
-            IF p_ordenacao = 'ASC' THEN
-                SELECT 
-                    ROW_NUMBER() OVER (ORDER BY valor_produto ASC) AS ranking,
-                    id_produto,
-                    nome_produto,
-                    valor_produto,
-                    site_origem,
-                    link_origem
-                FROM produtos
-                ORDER BY valor_produto ASC;
-            ELSE
-                SELECT 
-                    ROW_NUMBER() OVER (ORDER BY valor_produto DESC) AS ranking,
-                    id_produto,
-                    nome_produto,
-                    valor_produto,
-                    site_origem,
-                    link_origem
-                FROM produtos
-                ORDER BY valor_produto DESC;
-            END IF;
-        END IF;
-    END IF;
-END //
-
-DELIMITER ;
+  -- Criação do banco de dados
+  CREATE DATABASE IF NOT EXISTS comparador_produtos;
+  USE comparador_produtos;
+  
+  -- Tabela de origens (sites)
+  CREATE TABLE origens (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      nome VARCHAR(100) NOT NULL UNIQUE,
+      url_base VARCHAR(255) NOT NULL
+  );
+  
+  -- Tabela de produtos
+  CREATE TABLE produtos (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      nome VARCHAR(255) NOT NULL,
+      preco DECIMAL(10,2) NOT NULL CHECK (preco >= 0),
+      link VARCHAR(500) NOT NULL,
+      origem_id INT NOT NULL,
+      data_coleta DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (origem_id) REFERENCES origens(id)
+  );
+  
+  -- Inserção de origens
+  INSERT INTO origens (nome, url_base) VALUES
+  ('Site 1', 'https://site1.com'),
+  ('Site 2', 'https://site2.com'),
+  ('Site 3', 'https://site3.com');
+  
+  -- Inserção de produtos
+  INSERT INTO produtos (nome, preco, link, origem_id) VALUES
+  ('Mouse Gamer', 129.90, 'https://site1.com/mouse', 1),
+  ('Teclado Mecânico', 249.99, 'https://site2.com/teclado', 2),
+  ('Monitor 24"', 899.00, 'https://site3.com/monitor', 3),
+  ('Headset RGB', 199.50, 'https://site1.com/headset', 1),
+  ('Webcam HD', 149.00, 'https://site2.com/webcam', 2);
 ```
 
-### 📄 `main.py`
+### 📄 `Exercicio01.py`
 
 ```python
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Exercício 1: Comparador de Preços com Web Scraping
-Requisitos: BeautifulSoup, 3+ sites, MySQL, Procedure
-"""
-
-import requests
-from bs4 import BeautifulSoup
-import mysql.connector
-import time
-
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'sua_senha_aqui',
-    'database': 'comparador_precos'
-}
-
-class GerenciadorBanco:
-    def __init__(self, config):
-        self.conexao = None
-        self.cursor = None
-        try:
-            self.conexao = mysql.connector.connect(**config)
-            self.cursor = self.conexao.cursor()
-            print("✓ Conectado ao MySQL")
-        except mysql.connector.Error as err:
-            print(f"✗ Erro: {err}")
-            exit(1)
-    
-    def inserir_produto(self, nome, valor, link, site):
-        try:
-            sql = """
-            INSERT INTO produtos (nome_produto, valor_produto, link_origem, site_origem)
-            VALUES (%s, %s, %s, %s)
-            """
-            self.cursor.execute(sql, (nome, valor, link, site))
-            self.conexao.commit()
-            return True
-        except mysql.connector.Error as err:
-            print(f"✗ Erro: {err}")
-            return False
-    
-    def limpar_tabela(self):
-        try:
-            self.cursor.execute("TRUNCATE TABLE produtos")
-            self.conexao.commit()
-            print("✓ Tabela limpa")
-        except mysql.connector.Error as err:
-            print(f"✗ Erro: {err}")
-    
-    def exibir_ranking(self, ordenacao='ASC'):
-        try:
-            self.cursor.callproc('sp_ranking_produtos', [ordenacao])
-            for result in self.cursor.stored_results():
-                return result.fetchall()
-        except mysql.connector.Error as err:
-            print(f"✗ Erro: {err}")
+  import re
+  import os
+  import platform
+  from datetime import datetime
+  
+  # 🎨 Cores ANSI
+  class Cores:
+      HEADER = '\033[95m'
+      AZUL = '\033[94m'
+      VERDE = '\033[92m'
+      AMARELO = '\033[93m'
+      VERMELHO = '\033[91m'
+      NEGRITO = '\033[1m'
+      RESET = '\033[0m'
+  
+  # 🔧 Limpa o terminal
+  def limpar_terminal():
+      os.system('cls' if platform.system() == 'Windows' else 'clear')
+  
+  # 📥 Carrega dados simulados do SQL
+  def carregar_dados_sql(caminho_sql):
+      produtos = []
+      origens = {}
+      try:
+          with open(caminho_sql, 'r', encoding='utf-8') as arquivo:
+              conteudo = arquivo.read()
+  
+              # Extrai origens
+              origem_padrao = r"INSERT INTO origens \(nome, url_base\) VALUES\s*(.+?);"
+              origem_match = re.search(origem_padrao, conteudo, re.DOTALL)
+              if origem_match:
+                  origem_linhas = re.findall(r"\('(.+?)', '(.+?)'\)", origem_match.group(1))
+                  for i, (nome, url) in enumerate(origem_linhas, start=1):
+                      origens[str(i)] = {'nome': nome, 'url_base': url}
+  
+              # Extrai produtos
+              produto_padrao = r"INSERT INTO produtos \(nome, preco, link, origem_id\) VALUES\s*(.+?);"
+              produto_match = re.search(produto_padrao, conteudo, re.DOTALL)
+              if produto_match:
+                  produto_linhas = re.findall(r"\('(.+?)', ([\d.]+), '(.+?)', (\d+)\)", produto_match.group(1))
+                  for nome, preco, link, origem_id in produto_linhas:
+                      origem_info = origens.get(origem_id, {'nome': 'Desconhecido', 'url_base': ''})
+                      produtos.append({
+                          'nome': nome,
+                          'preco': float(preco),
+                          'link': link,
+                          'origem': origem_info['nome'],
+                          'url_base': origem_info['url_base'],
+                          'data_coleta': datetime.now().strftime('%d/%m/%Y %H:%M')
+                      })
+      except FileNotFoundError:
+          print(f"{Cores.VERMELHO}❌ Arquivo Database.sql não encontrado.{Cores.RESET}")
+      return produtos
+  
+  # 📊 Simula a procedure de ranking
+  def ranking_produtos(produtos, ordem='ASC'):
+      limpar_terminal()
+      titulo = f"📊 RANKING DE PRODUTOS ({ordem.upper()})"
+      print(f"{Cores.NEGRITO}{Cores.AZUL}{titulo.center(60)}{Cores.RESET}\n")
+      print(f"{'-'*60}")
+  
+      ordenados = sorted(produtos, key=lambda x: x['preco'], reverse=(ordem.upper() == 'DESC'))
+  
+      for i, p in enumerate(ordenados, start=1):
+          print(f"{Cores.VERDE}{i}. {p['nome']}{Cores.RESET}")
+          print(f"   💰 Preço: R$ {p['preco']:.2f}")
+          print(f"   🌐 Origem: {p['origem']}")
+          print(f"   🔗 Link: {p['link']}")
+          print(f"   📅 Coleta: {p['data_coleta']}")
+          print(f"{'-'*60}")
+      input(f"\n{Cores.AMARELO}🔁 Pressione ENTER para voltar ao menu...{Cores.RESET}")
+  
+  # 📦 Lista todos os produtos
+  def listar_produtos(produtos):
+      limpar_terminal()
+      print(f"{Cores.NEGRITO}{Cores.HEADER}📦 LISTA DE PRODUTOS{Cores.RESET}\n")
+      print(f"{'-'*60}")
+      for p in produtos:
+          print(f"{Cores.VERDE}- {p['nome']}{Cores.RESET}")
+          print(f"  💰 R$ {p['preco']:.2f} | 🌐 {p['origem']}")
+          print(f"  🔗 {p['link']}")
+          print(f"  📅 {p['data_coleta']}")
+          print(f"{'-'*60}")
+      input(f"\n{Cores.AMARELO}🔁 Pressione ENTER para voltar ao menu...{Cores.RESET}")
+  
+  # 🧭 Menu interativo
+  def menu():
+      caminho_sql = "Database.sql"
+      produtos = carregar_dados_sql(caminho_sql)
+  
+      if not produtos:
+          print(f"{Cores.VERMELHO}⚠️ Nenhum produto carregado.{Cores.RESET}")
+          return
+  
+      while True:
+          limpar_terminal()
+          print(f"{Cores.NEGRITO}{Cores.AZUL}{'🛒 COMPARADOR DE PRODUTOS'.center(60)}{Cores.RESET}")
+          print(f"{'-'*60}")
+          print(f"{Cores.AMARELO}1 - Ranking do menor para o maior preço")
+          print(f"2 - Ranking do maior para o menor preço")
+          print(f"3 - Listar todos os produtos")
+          print(f"0 - Sair{Cores.RESET}")
+          print(f"{'-'*60}")
+  
+          escolha = input(f"{Cores.NEGRITO}👉 Escolha uma opção: {Cores.RESET}")
+  
+          if escolha == '1':
+              ranking_produtos(produtos, ordem='ASC')
+          elif escolha == '2':
+              ranking_produtos(produtos, ordem='DESC')
+          elif escolha == '3':
+              listar_produtos(produtos)
+          elif escolha == '0':
+              limpar_terminal()
+              print(f"{Cores.VERDE}👋 Encerrando o programa. Até mais!{Cores.RESET}")
+              break
+          else:
+              limpar_terminal()
+              print(f"{Cores.VERMELHO}❌ Opção inválida. Tente novamente.{Cores.RESET}")
+              input(f"{Cores.AMARELO}🔁 Pressione ENTER para voltar ao menu...{Cores.RESET}")
+  
+  # 🚀 Execução principal
+  if __name__ == "__main__":
+      menu()
+```
