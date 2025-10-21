@@ -1,0 +1,134 @@
+CREATE TABLE tbProdutos (
+idProduto NUMBER PRIMARY KEY,
+nomeProduto VARCHAR2(100) NOT NULL,
+classificacao NUMBER NOT NULL,
+estoque NUMBER NOT NULL
+);
+CREATE TABLE tbPedidos (
+idPedido NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+idProduto NUMBER NOT NULL,
+quantidade NUMBER NOT NULL,
+dataPedido DATE DEFAULT SYSDATE,
+FOREIGN KEY (idProduto) REFERENCES tbProdutos(idProduto)
+);
+CREATE TABLE tbLogEstoque (
+idLog NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+idProduto NUMBER,
+quantidadeSolicitada NUMBER NOT NULL,
+mensagem VARCHAR2(200) NOT NULL,
+dataLog DATE DEFAULT SYSDATE
+);
+CREATE OR REPLACE PROCEDURE realizarPedido (
+p_idProduto IN NUMBER,
+p_quantidade IN NUMBER
+) AS
+v_estoque NUMBER;
+v_nomeProduto VARCHAR2(100);
+BEGIN
+BEGIN
+SELECT estoque, nomeProduto
+INTO v_estoque, v_nomeProduto
+FROM tbProdutos
+WHERE idProduto = p_idProduto;
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+INSERT INTO tbLogEstoque (idProduto, quantidadeSolicitada, mensagem)
+VALUES (p_idProduto, p_quantidade, 'Produto não encontrado');
+COMMIT;
+DBMS_OUTPUT.PUT_LINE('✗ Erro: Produto ' || p_idProduto || ' não existe');
+RETURN;
+END;
+IF v_estoque >= p_quantidade THEN
+INSERT INTO tbPedidos (idProduto, quantidade)
+VALUES (p_idProduto, p_quantidade);
+UPDATE tbProdutos
+SET estoque = estoque - p_quantidade
+WHERE idProduto = p_idProduto;
+COMMIT;
+DBMS_OUTPUT.PUT_LINE('✓ Pedido realizado: ' || v_nomeProduto ||
+' (Qtd: ' || p_quantidade || ')');
+ELSE
+INSERT INTO tbLogEstoque (idProduto, quantidadeSolicitada, mensagem)
+VALUES (p_idProduto, p_quantidade,
+'Estoque insuficiente (Disponível: ' || v_estoque || ')');
+COMMIT;
+DBMS_OUTPUT.PUT_LINE('✗ Estoque insuficiente: ' || v_nomeProduto ||
+' (Solicitado: ' || p_quantidade ||
+', Disponível: ' || v_estoque || ')');
+END IF;
+EXCEPTION
+WHEN OTHERS THEN
+DBMS_OUTPUT.PUT_LINE('✗ Erro inesperado: ' || SQLERRM);
+ROLLBACK;
+END;
+/
+CREATE OR REPLACE PROCEDURE listarProdutosCriticos AS
+CURSOR c_criticos IS
+SELECT idProduto, nomeProduto, classificacao, estoque
+FROM tbProdutos
+WHERE classificacao <= 3 OR estoque = 0
+ORDER BY
+CASE WHEN estoque = 0 THEN 1 ELSE 2 END,
+classificacao;
+v_contador NUMBER := 0;
+BEGIN
+DBMS_OUTPUT.PUT_LINE('========================================');
+DBMS_OUTPUT.PUT_LINE('    PRODUTOS CRÍTICOS');
+DBMS_OUTPUT.PUT_LINE('========================================');
+DBMS_OUTPUT.PUT_LINE('');
+FOR produto IN c_criticos LOOP
+v_contador := v_contador + 1;
+DBMS_OUTPUT.PUT_LINE('Produto #' || v_contador);
+DBMS_OUTPUT.PUT_LINE('  ID: ' || produto.idProduto);
+DBMS_OUTPUT.PUT_LINE('  Nome: ' || produto.nomeProduto);
+DBMS_OUTPUT.PUT_LINE('  Classificação: ' || produto.classificacao || '/10');
+DBMS_OUTPUT.PUT_LINE('  Estoque: ' || produto.estoque);
+IF produto.estoque = 0 THEN
+DBMS_OUTPUT.PUT_LINE('  Status: ⚠️  SEM ESTOQUE');
+ELSIF produto.classificacao <= 3 THEN
+DBMS_OUTPUT.PUT_LINE('  Status: ⚠️  CLASSIFICAÇÃO BAIXA');
+END IF;
+DBMS_OUTPUT.PUT_LINE('
+END LOOP;
+IF v_contador = 0 THEN
+DBMS_OUTPUT.PUT_LINE('✓ Nenhum produto crítico encontrado');
+ELSE
+DBMS_OUTPUT.PUT_LINE('');
+DBMS_OUTPUT.PUT_LINE('Total de produtos críticos: ' || v_contador);
+END IF;
+DBMS_OUTPUT.PUT_LINE('========================================');
+END;
+/
+CREATE OR REPLACE VIEW vwPedidosRealizados AS
+SELECT
+p.idPedido AS "ID Pedido",
+pr.nomeProduto AS "Produto",
+p.quantidade AS "Quantidade",
+TO_CHAR(p.dataPedido, 'DD/MM/YYYY HH24:MI:SS') AS "Data"
+FROM tbPedidos p
+JOIN tbProdutos pr ON p.idProduto = pr.idProduto
+ORDER BY p.dataPedido DESC;
+CREATE OR REPLACE VIEW vwLogEstoque AS
+SELECT
+l.idLog AS "ID",
+NVL(pr.nomeProduto, 'Produto ID: ' || l.idProduto) AS "Produto",
+l.quantidadeSolicitada AS "Qtd Solicitada",
+l.mensagem AS "Mensagem",
+TO_CHAR(l.dataLog, 'DD/MM/YYYY HH24:MI:SS') AS "Data"
+FROM tbLogEstoque l
+LEFT JOIN tbProdutos pr ON l.idProduto = pr.idProduto
+ORDER BY l.dataLog DESC;
+CREATE OR REPLACE VIEW vwProdutosCriticos AS
+SELECT
+idProduto AS "ID",
+nomeProduto AS "Produto",
+classificacao AS "Classificação",
+estoque AS "Estoque",
+CASE
+WHEN estoque = 0 THEN 'SEM ESTOQUE'
+WHEN classificacao <= 3 THEN 'CLASSIFICAÇÃO BAIXA'
+END AS "Status"
+FROM tbProdutos
+WHERE classificacao <= 3 OR estoque = 0;
+INSERT INTO tbProdutos VALUES (1, 'Mouse Gamer RGB', 2, 0);
+INSERT INTO tbProdutos VALUES (2, 'Teclado Mecâ
