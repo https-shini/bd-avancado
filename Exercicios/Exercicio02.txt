@@ -1,14 +1,46 @@
+-- ============================================================
+-- LIMPEZA DO AMBIENTE (ignora erros se objetos não existirem)
+-- ============================================================
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE tbJokenpo CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_jokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP VIEW vwEstatisticasJokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP VIEW vwHistoricoJokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP PROCEDURE jogarJokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
 
 -- ============================================================
--- EXERCÍCIO 02: JOGO JOKENPÔ EM PL/SQL
--- ============================================================
-
--- ============================================================
--- 1. CRIAR TABELA PARA ARMAZENAR JOGADAS
--- Requisito: Salvar cada jogada realizada
+-- TABELA PARA ARMAZENAR AS JOGADAS
 -- ============================================================
 CREATE TABLE tbJokenpo (
-    idJogada NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    idJogada NUMBER PRIMARY KEY,
     jogadaUsuario VARCHAR2(10) NOT NULL,
     jogadaPC VARCHAR2(10) NOT NULL,
     resultado VARCHAR2(20) NOT NULL,
@@ -16,10 +48,15 @@ CREATE TABLE tbJokenpo (
 );
 
 -- ============================================================
--- 2. PROCEDURE: JOGAR JOKENPÔ
--- Requisito a: Usuário informa jogada, Oracle gera do PC
--- Requisito b: Comparar e definir resultado
--- Requisito c: Salvar na tabela
+-- SEQUENCE PARA AUTO-INCREMENTO DO ID
+-- ============================================================
+CREATE SEQUENCE seq_jokenpo START WITH 1 INCREMENT BY 1;
+
+-- ============================================================
+-- PROCEDURE: JOGAR JOKENPÔ
+-- Requisito a) Recebe jogada do usuário e gera jogada do PC
+-- Requisito b) Compara jogadas e define resultado
+-- Requisito c) Salva na tabela
 -- ============================================================
 CREATE OR REPLACE PROCEDURE jogarJokenpo (
     p_jogadaUsuario IN VARCHAR2
@@ -27,19 +64,21 @@ CREATE OR REPLACE PROCEDURE jogarJokenpo (
     v_jogadaPC VARCHAR2(10);
     v_resultado VARCHAR2(20);
     v_numero NUMBER;
+    v_idJogada NUMBER;
 BEGIN
-    -- Gerar jogada aleatória do PC
-    v_numero := DBMS_RANDOM.VALUE(1, 4);
+    -- Gera número aleatório entre 1 e 4 para escolher jogada do PC
+    SELECT DBMS_RANDOM.VALUE(1, 4) INTO v_numero FROM DUAL;
     
-    IF v_numero < 2 THEN
+    -- Define jogada do PC baseado no número aleatório
+    IF v_numero <= 2 THEN
         v_jogadaPC := 'Pedra';
-    ELSIF v_numero < 3 THEN
+    ELSIF v_numero <= 3 THEN
         v_jogadaPC := 'Papel';
     ELSE
         v_jogadaPC := 'Tesoura';
     END IF;
 
-    -- Comparar jogadas e definir resultado
+    -- Compara jogadas e define o resultado
     IF p_jogadaUsuario = v_jogadaPC THEN
         v_resultado := 'Empate';
     ELSIF (p_jogadaUsuario = 'Pedra' AND v_jogadaPC = 'Tesoura') OR
@@ -50,13 +89,16 @@ BEGIN
         v_resultado := 'Vitória do PC';
     END IF;
 
-    -- Salvar jogada na tabela
-    INSERT INTO tbJokenpo (jogadaUsuario, jogadaPC, resultado)
-    VALUES (p_jogadaUsuario, v_jogadaPC, v_resultado);
+    -- Obtém próximo valor da sequence para o ID
+    SELECT seq_jokenpo.NEXTVAL INTO v_idJogada FROM DUAL;
+
+    -- Insere jogada na tabela
+    INSERT INTO tbJokenpo (idJogada, jogadaUsuario, jogadaPC, resultado)
+    VALUES (v_idJogada, p_jogadaUsuario, v_jogadaPC, v_resultado);
     
     COMMIT;
     
-    -- Exibir resultado
+    -- Exibe resultado no console
     DBMS_OUTPUT.PUT_LINE('Você jogou: ' || p_jogadaUsuario);
     DBMS_OUTPUT.PUT_LINE('PC jogou: ' || v_jogadaPC);
     DBMS_OUTPUT.PUT_LINE('Resultado: ' || v_resultado);
@@ -65,37 +107,35 @@ END;
 /
 
 -- ============================================================
--- 3. VIEW: ESTATÍSTICAS DO JOGO
--- Requisito c: Consulta com total de vitórias e empates
+-- VIEW: ESTATÍSTICAS DO JOGO
+-- Requisito c) Consulta com total de vitórias e empates
 -- ============================================================
 CREATE OR REPLACE VIEW vwEstatisticasJokenpo AS
 SELECT
-    COUNT(*) AS "Total de Jogadas",
-    SUM(CASE WHEN resultado = 'Vitória do Usuário' THEN 1 ELSE 0 END) AS "Vitórias do Usuário",
-    SUM(CASE WHEN resultado = 'Vitória do PC' THEN 1 ELSE 0 END) AS "Vitórias do PC",
-    SUM(CASE WHEN resultado = 'Empate' THEN 1 ELSE 0 END) AS "Empates"
+    COUNT(*) AS TotalJogadas,
+    SUM(CASE WHEN resultado = 'Vitória do Usuário' THEN 1 ELSE 0 END) AS VitoriasUsuario,
+    SUM(CASE WHEN resultado = 'Vitória do PC' THEN 1 ELSE 0 END) AS VitoriasPC,
+    SUM(CASE WHEN resultado = 'Empate' THEN 1 ELSE 0 END) AS Empates
 FROM tbJokenpo;
 
 -- ============================================================
--- 4. VIEW: HISTÓRICO DE JOGADAS
+-- VIEW: HISTÓRICO DE JOGADAS
 -- ============================================================
 CREATE OR REPLACE VIEW vwHistoricoJokenpo AS
 SELECT 
-    idJogada AS "ID",
-    jogadaUsuario AS "Jogada Usuário",
-    jogadaPC AS "Jogada PC",
-    resultado AS "Resultado",
-    TO_CHAR(dataJogada, 'DD/MM/YYYY HH24:MI:SS') AS "Data/Hora"
+    idJogada,
+    jogadaUsuario,
+    jogadaPC,
+    resultado,
+    TO_CHAR(dataJogada, 'DD/MM/YYYY HH24:MI:SS') AS dataHora
 FROM tbJokenpo
 ORDER BY idJogada DESC;
 
 -- ============================================================
--- 5. TESTES - EXECUTAR JOGADAS
+-- TESTES: EXECUÇÃO DE 5 JOGADAS
 -- ============================================================
-SET SERVEROUTPUT ON;
-
 BEGIN
-    -- Jogar 5 rodadas
+    DBMS_OUTPUT.ENABLE(1000000);
     jogarJokenpo('Pedra');
     jogarJokenpo('Papel');
     jogarJokenpo('Tesoura');
@@ -105,16 +145,12 @@ END;
 /
 
 -- ============================================================
--- 6. CONSULTAS - VISUALIZAR RESULTADOS
+-- CONSULTAS: VISUALIZAÇÃO DOS RESULTADOS
 -- ============================================================
-
--- Ver todas as jogadas
 SELECT * FROM vwHistoricoJokenpo;
 
--- Ver estatísticas
 SELECT * FROM vwEstatisticasJokenpo;
 
--- Consulta adicional: Percentual de vitórias
 SELECT 
     resultado,
     COUNT(*) AS total,
@@ -124,16 +160,39 @@ GROUP BY resultado
 ORDER BY total DESC;
 
 -- ============================================================
--- 7. LIMPEZA (OPCIONAL - USAR APENAS PARA RESETAR)
+-- LIMPEZA FINAL DO AMBIENTE
 -- ============================================================
-/*
--- Apagar dados
-DELETE FROM tbJokenpo;
-COMMIT;
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE tbJokenpo CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
 
--- Dropar objetos
-DROP VIEW vwHistoricoJokenpo;
-DROP VIEW vwEstatisticasJokenpo;
-DROP PROCEDURE jogarJokenpo;
-DROP TABLE tbJokenpo;
-*/
+BEGIN
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_jokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP VIEW vwEstatisticasJokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP VIEW vwHistoricoJokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP PROCEDURE jogarJokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
