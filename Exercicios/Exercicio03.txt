@@ -1,249 +1,198 @@
 -- ============================================================
--- EXERCÍCIO 03: CONTROLE DE ESTOQUE COM CURSOR
+-- LIMPEZA DO AMBIENTE (ignora erros se objetos não existirem)
 -- ============================================================
-
--- ============================================================
--- 1. CRIAR TABELAS
--- ============================================================
-CREATE TABLE tbProdutos (
-    idProduto NUMBER PRIMARY KEY,
-    nomeProduto VARCHAR2(100) NOT NULL,
-    classificacao NUMBER NOT NULL,
-    estoque NUMBER NOT NULL
-);
-
-CREATE TABLE tbPedidos (
-    idPedido NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    idProduto NUMBER NOT NULL,
-    quantidade NUMBER NOT NULL,
-    dataPedido DATE DEFAULT SYSDATE,
-    FOREIGN KEY (idProduto) REFERENCES tbProdutos(idProduto)
-);
-
-CREATE TABLE tbLogEstoque (
-    idLog NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    idProduto NUMBER,
-    quantidadeSolicitada NUMBER NOT NULL,
-    mensagem VARCHAR2(200) NOT NULL,
-    dataLog DATE DEFAULT SYSDATE
-);
-
--- ============================================================
--- 2. PROCEDURE: REALIZAR PEDIDO
--- ============================================================
-CREATE OR REPLACE PROCEDURE realizarPedido (
-    p_idProduto IN NUMBER,
-    p_quantidade IN NUMBER
-) AS
-    v_estoque NUMBER;
-    v_nomeProduto VARCHAR2(100);
 BEGIN
-    BEGIN
-        SELECT estoque, nomeProduto 
-        INTO v_estoque, v_nomeProduto
-        FROM tbProdutos
-        WHERE idProduto = p_idProduto;
-        
-    EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-            INSERT INTO tbLogEstoque (idProduto, quantidadeSolicitada, mensagem)
-            VALUES (p_idProduto, p_quantidade, 'Produto não encontrado');
-            COMMIT;
-            
-            DBMS_OUTPUT.PUT_LINE('✗ Erro: Produto ' || p_idProduto || ' não existe');
-            RETURN;
-    END;
-    
-    IF v_estoque >= p_quantidade THEN
-        INSERT INTO tbPedidos (idProduto, quantidade)
-        VALUES (p_idProduto, p_quantidade);
-        
-        UPDATE tbProdutos
-        SET estoque = estoque - p_quantidade
-        WHERE idProduto = p_idProduto;
-        
-        COMMIT;
-        DBMS_OUTPUT.PUT_LINE('✓ Pedido realizado: ' || v_nomeProduto || 
-                             ' (Qtd: ' || p_quantidade || ')');
-    ELSE
-        INSERT INTO tbLogEstoque (idProduto, quantidadeSolicitada, mensagem)
-        VALUES (p_idProduto, p_quantidade, 
-                'Estoque insuficiente (Disponível: ' || v_estoque || ')');
-        COMMIT;
-        
-        DBMS_OUTPUT.PUT_LINE('✗ Estoque insuficiente: ' || v_nomeProduto || 
-                             ' (Solicitado: ' || p_quantidade || 
-                             ', Disponível: ' || v_estoque || ')');
-    END IF;
-    
+    EXECUTE IMMEDIATE 'DROP TABLE tbJokenpo CASCADE CONSTRAINTS';
 EXCEPTION
-    WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('✗ Erro inesperado: ' || SQLERRM);
-        ROLLBACK;
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_jokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP VIEW vwEstatisticasJokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP VIEW vwHistoricoJokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP PROCEDURE jogarJokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
 END;
 /
 
 -- ============================================================
--- 3. PROCEDURE: LISTAR PRODUTOS CRÍTICOS COM CURSOR
+-- TABELA PARA ARMAZENAR AS JOGADAS
 -- ============================================================
-CREATE OR REPLACE PROCEDURE listarProdutosCriticos AS
-    CURSOR c_criticos IS
-        SELECT idProduto, nomeProduto, classificacao, estoque
-        FROM tbProdutos
-        WHERE classificacao <= 3 OR estoque = 0
-        ORDER BY 
-            CASE WHEN estoque = 0 THEN 1 ELSE 2 END,
-            classificacao;
-        
-    v_contador NUMBER := 0;
+CREATE TABLE tbJokenpo (
+    idJogada NUMBER PRIMARY KEY,
+    jogadaUsuario VARCHAR2(10) NOT NULL,
+    jogadaPC VARCHAR2(10) NOT NULL,
+    resultado VARCHAR2(20) NOT NULL,
+    dataJogada DATE DEFAULT SYSDATE
+);
+
+-- ============================================================
+-- SEQUENCE PARA AUTO-INCREMENTO DO ID
+-- ============================================================
+CREATE SEQUENCE seq_jokenpo START WITH 1 INCREMENT BY 1;
+
+-- ============================================================
+-- PROCEDURE: JOGAR JOKENPÔ
+-- Requisito a) Recebe jogada do usuário e gera jogada do PC
+-- Requisito b) Compara jogadas e define resultado
+-- Requisito c) Salva na tabela
+-- ============================================================
+CREATE OR REPLACE PROCEDURE jogarJokenpo (
+    p_jogadaUsuario IN VARCHAR2
+) AS
+    v_jogadaPC VARCHAR2(10);
+    v_resultado VARCHAR2(20);
+    v_numero NUMBER;
+    v_idJogada NUMBER;
 BEGIN
-    DBMS_OUTPUT.PUT_LINE('========================================');
-    DBMS_OUTPUT.PUT_LINE('     PRODUTOS CRÍTICOS');
-    DBMS_OUTPUT.PUT_LINE('========================================');
-    DBMS_OUTPUT.PUT_LINE('');
+    -- Gera número aleatório entre 1 e 4 para escolher jogada do PC
+    SELECT DBMS_RANDOM.VALUE(1, 4) INTO v_numero FROM DUAL;
     
-    FOR produto IN c_criticos LOOP
-        v_contador := v_contador + 1;
-        
-        DBMS_OUTPUT.PUT_LINE('Produto #' || v_contador);
-        DBMS_OUTPUT.PUT_LINE('  ID: ' || produto.idProduto);
-        DBMS_OUTPUT.PUT_LINE('  Nome: ' || produto.nomeProduto);
-        DBMS_OUTPUT.PUT_LINE('  Classificação: ' || produto.classificacao || '/10');
-        DBMS_OUTPUT.PUT_LINE('  Estoque: ' || produto.estoque);
-        
-        IF produto.estoque = 0 THEN
-            DBMS_OUTPUT.PUT_LINE('  Status: ⚠️ SEM ESTOQUE');
-        ELSIF produto.classificacao <= 3 THEN
-            DBMS_OUTPUT.PUT_LINE('  Status: ⚠️ CLASSIFICAÇÃO BAIXA');
-        END IF;
-        
-        DBMS_OUTPUT.PUT_LINE('----------------------------------------');
-    END LOOP;
-    
-    IF v_contador = 0 THEN
-        DBMS_OUTPUT.PUT_LINE('✓ Nenhum produto crítico encontrado');
+    -- Define jogada do PC baseado no número aleatório
+    IF v_numero <= 2 THEN
+        v_jogadaPC := 'Pedra';
+    ELSIF v_numero <= 3 THEN
+        v_jogadaPC := 'Papel';
     ELSE
-        DBMS_OUTPUT.PUT_LINE('');
-        DBMS_OUTPUT.PUT_LINE('Total de produtos críticos: ' || v_contador);
+        v_jogadaPC := 'Tesoura';
     END IF;
+
+    -- Compara jogadas e define o resultado
+    IF p_jogadaUsuario = v_jogadaPC THEN
+        v_resultado := 'Empate';
+    ELSIF (p_jogadaUsuario = 'Pedra' AND v_jogadaPC = 'Tesoura') OR
+          (p_jogadaUsuario = 'Papel' AND v_jogadaPC = 'Pedra') OR
+          (p_jogadaUsuario = 'Tesoura' AND v_jogadaPC = 'Papel') THEN
+        v_resultado := 'Vitória do Usuário';
+    ELSE
+        v_resultado := 'Vitória do PC';
+    END IF;
+
+    -- Obtém próximo valor da sequence para o ID
+    SELECT seq_jokenpo.NEXTVAL INTO v_idJogada FROM DUAL;
+
+    -- Insere jogada na tabela
+    INSERT INTO tbJokenpo (idJogada, jogadaUsuario, jogadaPC, resultado)
+    VALUES (v_idJogada, p_jogadaUsuario, v_jogadaPC, v_resultado);
     
-    DBMS_OUTPUT.PUT_LINE('========================================');
+    COMMIT;
+    
+    -- Exibe resultado no console
+    DBMS_OUTPUT.PUT_LINE('Você jogou: ' || p_jogadaUsuario);
+    DBMS_OUTPUT.PUT_LINE('PC jogou: ' || v_jogadaPC);
+    DBMS_OUTPUT.PUT_LINE('Resultado: ' || v_resultado);
+    DBMS_OUTPUT.PUT_LINE('------------------------');
 END;
 /
 
 -- ============================================================
--- 4. VIEWS PARA CONSULTA
+-- VIEW: ESTATÍSTICAS DO JOGO
+-- Requisito c) Consulta com total de vitórias e empates
 -- ============================================================
-CREATE OR REPLACE VIEW vwPedidosRealizados AS
-SELECT 
-    p.idPedido AS "ID Pedido",
-    pr.nomeProduto AS "Produto",
-    p.quantidade AS "Quantidade",
-    TO_CHAR(p.dataPedido, 'DD/MM/YYYY HH24:MI:SS') AS "Data"
-FROM tbPedidos p
-JOIN tbProdutos pr ON p.idProduto = pr.idProduto
-ORDER BY p.dataPedido DESC;
-
-CREATE OR REPLACE VIEW vwLogEstoque AS
-SELECT 
-    l.idLog AS "ID",
-    NVL(pr.nomeProduto, 'Produto ID: ' || l.idProduto) AS "Produto",
-    l.quantidadeSolicitada AS "Qtd Solicitada",
-    l.mensagem AS "Mensagem",
-    TO_CHAR(l.dataLog, 'DD/MM/YYYY HH24:MI:SS') AS "Data"
-FROM tbLogEstoque l
-LEFT JOIN tbProdutos pr ON l.idProduto = pr.idProduto
-ORDER BY l.dataLog DESC;
-
-CREATE OR REPLACE VIEW vwProdutosCriticos AS
-SELECT 
-    idProduto AS "ID",
-    nomeProduto AS "Produto",
-    classificacao AS "Classificação",
-    estoque AS "Estoque",
-    CASE 
-        WHEN estoque = 0 THEN 'SEM ESTOQUE'
-        WHEN classificacao <= 3 THEN 'CLASSIFICAÇÃO BAIXA'
-    END AS "Status"
-FROM tbProdutos
-WHERE classificacao <= 3 OR estoque = 0;
+CREATE OR REPLACE VIEW vwEstatisticasJokenpo AS
+SELECT
+    COUNT(*) AS TotalJogadas,
+    SUM(CASE WHEN resultado = 'Vitória do Usuário' THEN 1 ELSE 0 END) AS VitoriasUsuario,
+    SUM(CASE WHEN resultado = 'Vitória do PC' THEN 1 ELSE 0 END) AS VitoriasPC,
+    SUM(CASE WHEN resultado = 'Empate' THEN 1 ELSE 0 END) AS Empates
+FROM tbJokenpo;
 
 -- ============================================================
--- 5. INSERIR DADOS DE TESTE E EXECUTAR
+-- VIEW: HISTÓRICO DE JOGADAS
 -- ============================================================
-INSERT INTO tbProdutos VALUES (1, 'Mouse Gamer', 2, 0);
-INSERT INTO tbProdutos VALUES (2, 'Teclado Mecânico', 9, 10);
-INSERT INTO tbProdutos VALUES (3, 'Monitor 24"', 3, 5);
-COMMIT;
+CREATE OR REPLACE VIEW vwHistoricoJokenpo AS
+SELECT 
+    idJogada,
+    jogadaUsuario,
+    jogadaPC,
+    resultado,
+    TO_CHAR(dataJogada, 'DD/MM/YYYY HH24:MI:SS') AS dataHora
+FROM tbJokenpo
+ORDER BY idJogada DESC;
 
-SET SERVEROUTPUT ON;
+-- ============================================================
+-- TESTES: EXECUÇÃO DE 5 JOGADAS
+-- ============================================================
+BEGIN
+    DBMS_OUTPUT.ENABLE(1000000);
+    jogarJokenpo('Pedra');
+    jogarJokenpo('Papel');
+    jogarJokenpo('Tesoura');
+    jogarJokenpo('Pedra');
+    jogarJokenpo('Papel');
+END;
+/
+
+-- ============================================================
+-- CONSULTAS: VISUALIZAÇÃO DOS RESULTADOS
+-- ============================================================
+SELECT * FROM vwHistoricoJokenpo;
+
+SELECT * FROM vwEstatisticasJokenpo;
+
+SELECT 
+    resultado,
+    COUNT(*) AS total,
+    ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM tbJokenpo), 2) AS percentual
+FROM tbJokenpo
+GROUP BY resultado
+ORDER BY total DESC;
+
+-- ============================================================
+-- LIMPEZA FINAL DO AMBIENTE
+-- ============================================================
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE tbJokenpo CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
 
 BEGIN
-    realizarPedido(2, 3);
-    realizarPedido(1, 1);
-    realizarPedido(99, 1);
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_jokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
 END;
 /
 
 BEGIN
-    listarProdutosCriticos;
+    EXECUTE IMMEDIATE 'DROP VIEW vwEstatisticasJokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
 END;
 /
 
-CREATE OR REPLACE VIEW vwPedidosRealizados AS
-SELECT 
-    p.idPedido AS "ID do Pedido",
-    pr.nomeProduto AS "Produto",
-    p.quantidade AS "Quantidade",
-    TO_CHAR(p.dataPedido, 'DD/MM/YYYY HH24:MI') AS "Data do Pedido"
-FROM tbPedidos p
-JOIN tbProdutos pr ON p.idProduto = pr.idProduto;
+BEGIN
+    EXECUTE IMMEDIATE 'DROP VIEW vwHistoricoJokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
 
-CREATE OR REPLACE VIEW vwLogEstoque AS
-SELECT 
-    l.idLog AS "ID do Log",
-    NVL(pr.nomeProduto, 'Produto não cadastrado') AS "Produto",
-    l.quantidadeSolicitada AS "Quantidade Solicitada",
-    TO_CHAR(l.dataLog, 'DD/MM/YYYY HH24:MI') AS "Data do Log",
-    l.mensagem AS "Mensagem"
-FROM tbLogEstoque l
-LEFT JOIN tbProdutos pr ON l.idProduto = pr.idProduto;
-
-CREATE OR REPLACE VIEW vwProdutosCriticos AS
-SELECT 
-    idProduto AS "ID do Produto",
-    nomeProduto AS "Produto",
-    classificacao AS "Classificação",
-    estoque AS "Estoque"
-FROM tbProdutos
-WHERE classificacao <= 3 OR estoque = 0;
-
--- ============================================================
--- 6. CONSULTAS - VISUALIZAR RESULTADOS
--- ============================================================
-SELECT * FROM vwPedidosRealizados;
-SELECT * FROM vwLogEstoque;
-SELECT * FROM vwProdutosCriticos;
-
-
--- ============================================================
--- 7. LIMPEZA (OPCIONAL - USAR APENAS PARA RESETAR)
--- ============================================================
-/*
-DELETE FROM tbPedidos;
-DELETE FROM tbLogEstoque;
-DELETE FROM tbProdutos;
-COMMIT;
-
-DROP VIEW vwPedidosRealizados;
-DROP VIEW vwLogEstoque;
-DROP VIEW vwProdutosCriticos;
-
-DROP PROCEDURE realizarPedido;
-DROP PROCEDURE listarProdutosCriticos;
-
-DROP TABLE tbPedidos;
-DROP TABLE tbLogEstoque;
-DROP TABLE tbProdutos;
-*/
-
+BEGIN
+    EXECUTE IMMEDIATE 'DROP PROCEDURE jogarJokenpo';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
