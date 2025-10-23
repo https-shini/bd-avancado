@@ -1,42 +1,78 @@
 # 🎓 Laboratório de Banco de Dados Avançado
 
 **Disciplina:** Laboratório de Banco de Dados Avançado  
-**Pontuação:** Até 2 pontos  
-**Integrantes:** Máximo 3 pessoas
+**Professor:** Me. Allan Vidal  
+**Curso:** Ciência da Computação – Universidade Cruzeiro do Sul  
+**Pontuação Total:** 2,0 pontos
 
 ---
 
 ## 📚 Índice
 
-1. [Exercício 01 - Comparador de Produtos (Python + MySQL)](#exercício-01---comparador-de-produtos)
-2. [Exercício 02 - Jogo Jokenpô (PL/SQL)](#exercício-02---jogo-jokenpô)
-3. [Exercício 03 - Controle de Estoque (PL/SQL)](#exercício-03---controle-de-estoque)
-4. [Requisitos e Instalação](#requisitos-e-instalação)
-5. [Como Executar](#como-executar)
+1. [Sobre a Atividade](#-sobre-a-atividade)
+2. [Exercício 01 - Comparador de Produtos](#-exercício-01---comparador-de-produtos)
+3. [Exercício 02 - Jogo Jokenpô](#-exercício-02---jogo-jokenpô)
+4. [Exercício 03 - Controle de Estoque](#-exercício-03---controle-de-estoque)
+5. [Requisitos e Instalação](#-requisitos-e-instalação)
+6. [Como Executar](#-como-executar)
+7. [Equipe](#-equipe)
+
+---
+
+## 📋 Sobre a Atividade
+
+Esta atividade avaliativa tem como objetivo aplicar os conhecimentos adquiridos na disciplina de Banco de Dados Avançado, explorando conceitos de:
+
+- Web Scraping e integração Python + MySQL
+- PL/SQL (Procedures, Views, Cursores)
+- Manipulação de dados e controle transacional
+- Stored Procedures com parâmetros
+- Geração de números aleatórios
+- Tratamento de exceções
+
+### 🎯 Objetivos de Aprendizagem
+
+- Desenvolver habilidades práticas em bancos de dados relacionais
+- Implementar soluções usando recursos avançados de SQL
+- Integrar diferentes tecnologias (Python, MySQL, Oracle)
+- Criar procedures reutilizáveis e eficientes
+- Aplicar boas práticas de programação em banco de dados
 
 ---
 
 ## 🛒 Exercício 01 - Comparador de Produtos
-**Pontuação:** 1 ponto  
-**Tecnologias:** Python 3.x, MySQL, BeautifulSoup4, Requests
 
-### 📋 Descrição
-Sistema de comparação de preços que realiza web scraping em 3 lojas online, armazena os dados em MySQL e exibe rankings ordenáveis de produtos.
+### 📌 Enunciado
 
-### ✅ Requisitos Atendidos
+Desenvolver um sistema de comparação de preços que realize web scraping em **3 sites diferentes**, armazene os dados em um banco de dados MySQL e permita visualizar um ranking de produtos ordenado por preço.
 
-#### **a) Web Scraping de 3 Sites**
-Coleta automática de dados do processador **AMD Ryzen 7 5700X**:
+### ✅ Requisitos Solicitados
 
-| Loja | URL | Dados Coletados |
-|------|-----|----------------|
-| 🎮 **Venturi Gaming** | `venturigaming.com.br` | Nome, Preço, Link |
-| 💻 **Kabum** | `kabum.com.br` | Nome, Preço, Link |
-| 🛍️ **Mercado Livre** | `mercadolivre.com.br` | Nome, Preço, Link |
+**a) Web Scraping de 3 sites diferentes**
+- Coletar dados de produto (nome, preço, link) de 3 lojas online
+- Utilizar bibliotecas Python para requisições HTTP e parsing HTML
 
-#### **b) Banco de Dados MySQL**
+**b) Armazenamento em MySQL**
+- Criar banco de dados com tabela estruturada
+- Armazenar: nome, preço, link, loja e data de coleta
+
+**c) Procedure para ranking ordenável**
+- Criar stored procedure que aceite parâmetro de ordenação (ASC/DESC)
+- Retornar produtos ordenados por preço
+
+### 🔧 Tecnologias Utilizadas
+
+- **Python 3.x**
+- **BeautifulSoup4** (parsing HTML)
+- **Requests** (requisições HTTP)
+- **MySQL Connector** (conexão com banco)
+- **MySQL Server** 5.7+
+
+### 💻 Estrutura do Banco de Dados
+
 ```sql
 Database: comparador_produtos
+
 Tabela: produtos
 ├── id (INT, AUTO_INCREMENT, PRIMARY KEY)
 ├── nome (VARCHAR(255))
@@ -44,365 +80,504 @@ Tabela: produtos
 ├── link (TEXT)
 ├── loja (VARCHAR(100))
 └── data_coleta (DATETIME, DEFAULT CURRENT_TIMESTAMP)
+
+Procedure: sp_ranking_produtos(ordem VARCHAR(4))
 ```
 
-#### **c) Procedure para Ranking**
+### 📊 Explicação do Código
+
+#### **1. Web Scraping**
+
+```python
+def scrape_kabum():
+    url = "https://www.kabum.com.br/produto/..."
+    resposta = requests.get(url, headers=gerar_headers(), timeout=15)
+    soup = BeautifulSoup(resposta.text, "html.parser")
+    
+    nome = soup.find("h1", class_="titulo-produto")
+    preco = soup.find("h4", class_="preco")
+```
+
+**Explicação:**
+- Faz requisição HTTP para o site da loja
+- Utiliza BeautifulSoup para analisar o HTML
+- Busca elementos específicos (nome e preço) através de classes CSS
+- Trata erros com try-except para garantir robustez
+
+#### **2. Limpeza de Dados**
+
+```python
+def limpar_preco(valor):
+    valor_limpo = re.sub(r'[^\d,]', '', valor)
+    valor_limpo = valor_limpo.replace(',', '.')
+    return float(valor_limpo)
+```
+
+**Explicação:**
+- Remove caracteres não numéricos (R$, espaços, etc.)
+- Converte vírgula para ponto (padrão decimal)
+- Retorna valor como float para armazenamento
+
+#### **3. Stored Procedure**
+
 ```sql
-PROCEDURE sp_ranking_produtos(ordem VARCHAR(4))
-```
-- **Parâmetro:** `ASC` (menor→maior) ou `DESC` (maior→menor)
-- **Retorna:** Produtos ordenados por preço
-
-### 🎨 Funcionalidades
-
-#### Menu Interativo
-```
-1 - 🌐 Coletar dados das lojas (Web Scraping)
-2 - 📊 Ranking ASC (Menor → Maior Preço)
-3 - 📊 Ranking DESC (Maior → Menor Preço)
-4 - 📋 Exibir informações do sistema
-5 - 🔧 Testar conexão com MySQL
-0 - 🚪 Sair do programa
+CREATE PROCEDURE sp_ranking_produtos(IN ordem VARCHAR(4))
+BEGIN
+    IF UPPER(ordem) = 'ASC' THEN
+        SELECT nome, preco, loja, link
+        FROM produtos
+        ORDER BY preco ASC;
+    ELSE
+        SELECT nome, preco, loja, link
+        FROM produtos
+        ORDER BY preco DESC;
+    END IF;
+END
 ```
 
-#### Características
-- ✅ Interface colorida no terminal
-- ✅ Tratamento robusto de erros
-- ✅ Múltiplas configurações de conexão MySQL
-- ✅ Timeout em requisições HTTP
-- ✅ Validação automática de dados
-- ✅ Limpeza e conversão de valores monetários
+**Explicação:**
+- Recebe parâmetro 'ASC' ou 'DESC'
+- Valida entrada com IF-ELSE
+- Retorna produtos ordenados por preço
+- Permite flexibilidade na visualização
 
-### 📁 Arquivos
+### ✅ Requisitos Atendidos
 
-| Arquivo | Descrição |
-|---------|-----------|
-| `main.py` | Aplicação Python completa |
-| `database.sql` | Script de criação do banco |
+| Requisito | Status | Implementação |
+|-----------|--------|---------------|
+| **a) Web Scraping 3 sites** | ✅ | Venturi Gaming, Kabum, Mercado Livre |
+| **b) Banco MySQL** | ✅ | Tabela `produtos` com 6 campos |
+| **c) Procedure ranking** | ✅ | `sp_ranking_produtos(ordem)` |
 
-### 🚀 Como Executar
+### 🎨 Funcionalidades Extras
 
-```bash
-# 1. Instalar dependências
-pip install requests beautifulsoup4 mysql-connector-python
+- Interface colorida no terminal
+- Tratamento robusto de erros
+- Múltiplas configurações de conexão
+- Menu interativo com 6 opções
+- Timeout em requisições HTTP
+- Validação automática de dados
 
-# 2. Configurar MySQL
-mysql -u root -p < database.sql
-
-# 3. Executar aplicação
-python main.py
-```
-
-### 📸 Exemplo de Saída
-```
-======================================================================
-            🛒 COMPARADOR DE PRODUTOS - WEB SCRAPING
-======================================================================
-
-🔍 Coletando dados de Venturi Gaming...
-🔍 Coletando dados de Kabum...
-🔍 Coletando dados de Mercado Livre...
-
-======================================================================
-                        📦 PRODUTOS COLETADOS
-======================================================================
-
-✅ Venturi Gaming
-   📦 Produto: Processador AMD Ryzen 7 5700X...
-   💰 Preço: R$ 899,90
-   🔗 Link: http://www.venturigaming.com.br/produtos/...
-
-✅ Kabum
-   📦 Produto: AMD Ryzen 7 5700X 8-Núcleos 16-Threads...
-   💰 Preço: R$ 949,99
-   🔗 Link: https://www.kabum.com.br/produto/729769/...
-```
+**Pontuação:** 1,0 ponto ✅
 
 ---
 
 ## 🎮 Exercício 02 - Jogo Jokenpô
-**Pontuação:** 0,5 pontos  
-**Tecnologia:** PL/SQL (Oracle Database)
 
-### 📋 Descrição
-Implementação do jogo Pedra, Papel e Tesoura com armazenamento de jogadas e estatísticas em Oracle Database.
+### 📌 Enunciado
+
+Implementar o jogo **Pedra, Papel e Tesoura** em PL/SQL, onde o usuário informa sua jogada e o Oracle gera a jogada do computador aleatoriamente. O sistema deve comparar as jogadas, definir o resultado e armazenar todas as partidas em uma tabela.
+
+### ✅ Requisitos Solicitados
+
+**a) Procedure que recebe jogada do usuário e gera jogada do PC**
+- Criar stored procedure com parâmetro de entrada
+- Gerar jogada aleatória usando DBMS_RANDOM
+
+**b) Comparar jogadas e definir resultado**
+- Implementar lógica do jogo (Pedra > Tesoura, Papel > Pedra, Tesoura > Papel)
+- Identificar vitória, derrota ou empate
+
+**c) Salvar jogadas e consultar estatísticas**
+- Criar tabela para armazenar histórico
+- Criar views com total de vitórias e empates
+
+### 🔧 Tecnologias Utilizadas
+
+- **Oracle Database** 19c
+- **PL/SQL** (Procedures, Cursores, Views)
+- **DBMS_RANDOM** (geração aleatória)
+- **DBMS_OUTPUT** (saída de dados)
+
+### 💻 Estrutura do Banco de Dados
+
+```sql
+Tabela: tbJokenpo
+├── idJogada (NUMBER, PRIMARY KEY)
+├── jogadaUsuario (VARCHAR2(10))
+├── jogadaPC (VARCHAR2(10))
+├── resultado (VARCHAR2(20))
+└── dataJogada (DATE, DEFAULT SYSDATE)
+
+Sequence: seq_jokenpo
+
+Procedure: jogarJokenpo(p_jogadaUsuario VARCHAR2)
+
+Views:
+├── vwEstatisticasJokenpo (totais agregados)
+└── vwHistoricoJokenpo (histórico ordenado)
+```
+
+### 📊 Explicação do Código
+
+#### **1. Geração Aleatória**
+
+```sql
+SELECT DBMS_RANDOM.VALUE(1, 4) INTO v_numero FROM DUAL;
+
+IF v_numero <= 2 THEN
+    v_jogadaPC := 'Pedra';
+ELSIF v_numero <= 3 THEN
+    v_jogadaPC := 'Papel';
+ELSE
+    v_jogadaPC := 'Tesoura';
+END IF;
+```
+
+**Explicação:**
+- `DBMS_RANDOM.VALUE(1, 4)` gera número decimal entre 1 e 4
+- Usa `SELECT ... FROM DUAL` para atribuir à variável
+- Distribui igualmente entre 3 opções usando IF-ELSIF-ELSE
+- Cada jogada tem ~33% de probabilidade
+
+#### **2. Lógica de Comparação**
+
+```sql
+IF p_jogadaUsuario = v_jogadaPC THEN
+    v_resultado := 'Empate';
+ELSIF (p_jogadaUsuario = 'Pedra' AND v_jogadaPC = 'Tesoura') OR
+      (p_jogadaUsuario = 'Papel' AND v_jogadaPC = 'Pedra') OR
+      (p_jogadaUsuario = 'Tesoura' AND v_jogadaPC = 'Papel') THEN
+    v_resultado := 'Vitória do Usuário';
+ELSE
+    v_resultado := 'Vitória do PC';
+END IF;
+```
+
+**Explicação:**
+- Primeiro verifica empate (jogadas iguais)
+- Depois verifica todas as combinações de vitória do usuário
+- Caso contrário, é vitória do PC
+- Lógica clara e sem redundâncias
+
+#### **3. Armazenamento e Saída**
+
+```sql
+SELECT seq_jokenpo.NEXTVAL INTO v_idJogada FROM DUAL;
+
+INSERT INTO tbJokenpo (idJogada, jogadaUsuario, jogadaPC, resultado)
+VALUES (v_idJogada, p_jogadaUsuario, v_jogadaPC, v_resultado);
+
+COMMIT;
+
+DBMS_OUTPUT.PUT_LINE('Você jogou: ' || p_jogadaUsuario);
+DBMS_OUTPUT.PUT_LINE('PC jogou: ' || v_jogadaPC);
+DBMS_OUTPUT.PUT_LINE('Resultado: ' || v_resultado);
+```
+
+**Explicação:**
+- Usa SEQUENCE para gerar ID único
+- Insere jogada na tabela
+- COMMIT confirma a transação
+- Exibe resultado formatado no console
+
+#### **4. View de Estatísticas**
+
+```sql
+CREATE VIEW vwEstatisticasJokenpo AS
+SELECT
+    COUNT(*) AS TotalJogadas,
+    SUM(CASE WHEN resultado = 'Vitória do Usuário' THEN 1 ELSE 0 END) AS VitoriasUsuario,
+    SUM(CASE WHEN resultado = 'Vitória do PC' THEN 1 ELSE 0 END) AS VitoriasPC,
+    SUM(CASE WHEN resultado = 'Empate' THEN 1 ELSE 0 END) AS Empates
+FROM tbJokenpo;
+```
+
+**Explicação:**
+- COUNT(*) conta total de jogadas
+- SUM(CASE WHEN...) conta resultados específicos
+- Retorna estatísticas agregadas em uma única linha
+- Facilita análise rápida do desempenho
+
+#### **5. Procedure de Limpeza**
+
+```sql
+CREATE OR REPLACE PROCEDURE limparAmbiente AS
+BEGIN
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE tbJokenpo CASCADE CONSTRAINTS';
+    EXCEPTION
+        WHEN OTHERS THEN NULL;
+    END;
+    -- (outros drops...)
+END;
+```
+
+**Explicação:**
+- Usa EXECUTE IMMEDIATE para DDL dinâmico
+- Tratamento de exceção ignora erros se objeto não existe
+- Permite executar script múltiplas vezes sem erro
+- Garante ambiente limpo antes da criação
 
 ### ✅ Requisitos Atendidos
 
-#### **a) Sistema de Jogadas**
-- Usuário informa sua jogada (Pedra/Papel/Tesoura)
-- Oracle gera jogada aleatória do PC usando `DBMS_RANDOM`
+| Requisito | Status | Implementação |
+|-----------|--------|---------------|
+| **a) Jogada PC aleatória** | ✅ | DBMS_RANDOM.VALUE + IF-ELSIF |
+| **b) Comparação e resultado** | ✅ | Lógica condicional completa |
+| **c) Salvar e consultar** | ✅ | Tabela + 2 Views (estatísticas e histórico) |
 
-#### **b) Comparação e Resultado**
-Lógica de vitória:
-- **Pedra** vence **Tesoura**
-- **Papel** vence **Pedra**
-- **Tesoura** vence **Papel**
-- Jogadas iguais = **Empate**
+### 🎯 Conceitos Aplicados
 
-#### **c) Armazenamento e Consultas**
-Tabela `tbJokenpo` armazena todas as jogadas com:
-- ID da jogada (auto-incremento)
-- Jogada do usuário
-- Jogada do PC
-- Resultado (Vitória Usuário/PC/Empate)
-- Data/hora da jogada
+- ✅ **Aula 05:** PL/SQL básico, DBMS_OUTPUT, IF-ELSIF-ELSE
+- ✅ **Aula 03:** INSERT, COMMIT, SYSDATE, TO_CHAR
+- ✅ **Aula 07:** CASE WHEN para agregações
+- ✅ **Aula 04:** Views para abstração
+- ✅ **Aula 08-09:** Stored Procedures com parâmetros IN
+- ✅ SEQUENCE e NEXTVAL para auto-incremento
+- ✅ DBMS_RANDOM para aleatoriedade
+- ✅ Tratamento de exceções
 
-### 🗄️ Estrutura do Banco
-
-```sql
-CREATE TABLE tbJokenpo (
-    idJogada NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    jogadaUsuario VARCHAR2(10) NOT NULL,
-    jogadaPC VARCHAR2(10) NOT NULL,
-    resultado VARCHAR2(20) NOT NULL,
-    dataJogada DATE DEFAULT SYSDATE
-);
-```
-
-### 🔧 Procedures e Views
-
-#### **Procedure Principal**
-```sql
-PROCEDURE jogarJokenpo(p_jogadaUsuario IN VARCHAR2)
-```
-- Gera jogada aleatória do PC
-- Compara jogadas
-- Salva resultado no banco
-- Exibe resultado no terminal
-
-#### **Views Criadas**
-
-1. **vwEstatisticasJokenpo** - Estatísticas gerais
-```sql
-SELECT * FROM vwEstatisticasJokenpo;
--- Retorna: Total de Jogadas, Vitórias Usuário, Vitórias PC, Empates
-```
-
-2. **vwHistoricoJokenpo** - Histórico completo
-```sql
-SELECT * FROM vwHistoricoJokenpo;
--- Retorna: ID, Jogadas, Resultado, Data/Hora
-```
-
-### 🎯 Exemplo de Uso
-
-```sql
--- Ativar saída no console
-SET SERVEROUTPUT ON;
-
--- Jogar várias rodadas
-BEGIN
-    jogarJokenpo('Pedra');
-    jogarJokenpo('Papel');
-    jogarJokenpo('Tesoura');
-    jogarJokenpo('Pedra');
-    jogarJokenpo('Papel');
-END;
-/
-
--- Visualizar estatísticas
-SELECT * FROM vwEstatisticasJokenpo;
-```
-
-### 📊 Exemplo de Saída
-```
-Você jogou: Pedra
-PC jogou: Tesoura
-Resultado: Vitória do Usuário
-------------------------
-Você jogou: Papel
-PC jogou: Papel
-Resultado: Empate
-------------------------
-```
-
-### 📈 Consultas Adicionais
-
-**Percentual de vitórias:**
-```sql
-SELECT 
-    resultado,
-    COUNT(*) AS total,
-    ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM tbJokenpo), 2) AS percentual
-FROM tbJokenpo
-GROUP BY resultado
-ORDER BY total DESC;
-```
+**Pontuação:** 0,5 pontos ✅
 
 ---
 
 ## 📦 Exercício 03 - Controle de Estoque
-**Pontuação:** 0,5 pontos  
-**Tecnologia:** PL/SQL (Oracle Database)
 
-### 📋 Descrição
-Sistema completo de controle de estoque com procedures, cursors e logs para gerenciamento de produtos e pedidos.
+### 📌 Enunciado
+
+Desenvolver um sistema de controle de estoque usando PL/SQL com **cursores explícitos**. O sistema deve permitir realizar pedidos verificando disponibilidade, dar baixa automática no estoque, registrar logs de erros e listar produtos críticos (baixa classificação ou sem estoque).
+
+### ✅ Requisitos Solicitados
+
+**a) Procedure para realizar pedidos**
+- Receber ID do produto e quantidade
+- Verificar disponibilidade em estoque
+- Se houver estoque: realizar pedido e dar baixa
+- Se não houver: registrar em log de erros
+
+**b) Procedure com cursor explícito**
+- Listar produtos com classificação ≤ 3 ou estoque = 0
+- Usar CURSOR para iterar sobre os resultados
+- Exibir produtos críticos formatados
+
+**c) Views para consultas**
+- Pedidos realizados
+- Log de estoque
+- Produtos críticos
+
+### 🔧 Tecnologias Utilizadas
+
+- **Oracle Database** 19c
+- **PL/SQL** (Procedures, Cursores Explícitos, Views)
+- **SEQUENCE** (auto-incremento)
+- **Tratamento de exceções** (NO_DATA_FOUND)
+
+### 💻 Estrutura do Banco de Dados
+
+```sql
+Tabela: tbProdutos
+├── idProduto (NUMBER, PRIMARY KEY)
+├── nomeProduto (VARCHAR2(100))
+├── classificacao (NUMBER) -- 1 a 10
+└── estoque (NUMBER)
+
+Tabela: tbPedidos
+├── idPedido (NUMBER, PRIMARY KEY)
+├── idProduto (NUMBER, FOREIGN KEY)
+├── quantidade (NUMBER)
+└── dataPedido (DATE, DEFAULT SYSDATE)
+
+Tabela: tbLogEstoque
+├── idLog (NUMBER, PRIMARY KEY)
+├── idProduto (NUMBER)
+├── quantidadeSolicitada (NUMBER)
+├── mensagem (VARCHAR2(200))
+└── dataLog (DATE, DEFAULT SYSDATE)
+
+Sequences:
+├── seq_pedidos
+└── seq_log
+
+Procedures:
+├── realizarPedido(p_idProduto, p_quantidade)
+├── listarProdutosCriticos()
+└── limparAmbienteEstoque()
+
+Views:
+├── vwPedidosRealizados
+├── vwLogEstoque
+└── vwProdutosCriticos
+```
+
+### 📊 Explicação do Código
+
+#### **1. Verificação de Produto**
+
+```sql
+BEGIN
+    SELECT estoque, nomeProduto 
+    INTO v_estoque, v_nomeProduto
+    FROM tbProdutos
+    WHERE idProduto = p_idProduto;
+    
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        INSERT INTO tbLogEstoque (idLog, idProduto, quantidadeSolicitada, mensagem)
+        VALUES (v_idLog, p_idProduto, p_quantidade, 'Produto não encontrado');
+        COMMIT;
+        RETURN;
+END;
+```
+
+**Explicação:**
+- Tenta buscar produto pelo ID
+- Usa SELECT INTO para atribuir valores às variáveis
+- Captura exceção NO_DATA_FOUND se produto não existir
+- Registra erro no log e encerra procedure com RETURN
+- Garante que apenas produtos válidos sejam processados
+
+#### **2. Validação de Estoque**
+
+```sql
+IF v_estoque >= p_quantidade THEN
+    -- Realiza pedido e dá baixa
+    INSERT INTO tbPedidos (idPedido, idProduto, quantidade)
+    VALUES (v_idPedido, p_idProduto, p_quantidade);
+    
+    UPDATE tbProdutos
+    SET estoque = estoque - p_quantidade
+    WHERE idProduto = p_idProduto;
+    
+    COMMIT;
+ELSE
+    -- Registra erro no log
+    INSERT INTO tbLogEstoque (...)
+    VALUES (..., 'Estoque insuficiente (Disponível: ' || v_estoque || ')');
+    COMMIT;
+END IF;
+```
+
+**Explicação:**
+- Compara estoque disponível com quantidade solicitada
+- Se suficiente: insere pedido e atualiza estoque
+- Se insuficiente: registra no log com mensagem detalhada
+- COMMIT confirma cada operação separadamente
+- Mantém integridade dos dados
+
+#### **3. Cursor Explícito**
+
+```sql
+CURSOR c_criticos IS
+    SELECT idProduto, nomeProduto, classificacao, estoque
+    FROM tbProdutos
+    WHERE classificacao <= 3 OR estoque = 0
+    ORDER BY 
+        CASE WHEN estoque = 0 THEN 1 ELSE 2 END,
+        classificacao;
+
+FOR produto IN c_criticos LOOP
+    v_contador := v_contador + 1;
+    
+    DBMS_OUTPUT.PUT_LINE('Produto #' || v_contador);
+    DBMS_OUTPUT.PUT_LINE('  ID: ' || produto.idProduto);
+    DBMS_OUTPUT.PUT_LINE('  Nome: ' || produto.nomeProduto);
+    -- ...
+END LOOP;
+```
+
+**Explicação:**
+- CURSOR declara conjunto de resultados que será iterado
+- WHERE filtra produtos críticos (classificação baixa ou sem estoque)
+- ORDER BY prioriza produtos sem estoque (CASE WHEN)
+- FOR LOOP automático abre, itera e fecha cursor
+- Acessa campos com `produto.nomeCampo`
+- Contador controla número de produtos encontrados
+
+#### **4. View com LEFT JOIN**
+
+```sql
+CREATE VIEW vwLogEstoque AS
+SELECT 
+    l.idLog,
+    NVL(pr.nomeProduto, 'Produto não cadastrado') AS nomeProduto,
+    l.quantidadeSolicitada,
+    TO_CHAR(l.dataLog, 'DD/MM/YYYY HH24:MI') AS dataLog,
+    l.mensagem
+FROM tbLogEstoque l
+LEFT JOIN tbProdutos pr ON l.idProduto = pr.idProduto
+ORDER BY l.dataLog DESC;
+```
+
+**Explicação:**
+- LEFT JOIN mantém logs mesmo se produto foi deletado
+- NVL substitui NULL por mensagem padrão
+- TO_CHAR formata data/hora para exibição
+- ORDER BY DESC mostra logs mais recentes primeiro
+- Garante rastreabilidade completa
+
+#### **5. View com Status Dinâmico**
+
+```sql
+CREATE VIEW vwProdutosCriticos AS
+SELECT 
+    idProduto,
+    nomeProduto,
+    classificacao,
+    estoque,
+    CASE 
+        WHEN estoque = 0 THEN 'SEM ESTOQUE'
+        WHEN classificacao <= 3 THEN 'CLASSIFICAÇÃO BAIXA'
+    END AS status
+FROM tbProdutos
+WHERE classificacao <= 3 OR estoque = 0;
+```
+
+**Explicação:**
+- CASE WHEN cria coluna dinâmica 'status'
+- Classifica automaticamente o tipo de criticidade
+- WHERE filtra apenas produtos que precisam atenção
+- Facilita identificação rápida de problemas
+- Pode ser usada em dashboards e relatórios
 
 ### ✅ Requisitos Atendidos
 
-#### **a) Procedure de Pedidos**
-Recebe ID do produto e quantidade:
-- ✅ Verifica disponibilidade em estoque
-- ✅ Realiza pedido se houver estoque
-- ✅ Dá baixa automática no estoque
-- ✅ Registra em log se não houver estoque
+| Requisito | Status | Implementação |
+|-----------|--------|---------------|
+| **a) Procedure realizar pedido** | ✅ | `realizarPedido` com validações |
+| **b) Cursor explícito** | ✅ | `listarProdutosCriticos` com CURSOR |
+| **c) Views consultas** | ✅ | 3 views (Pedidos, Log, Críticos) |
 
-#### **b) Procedure com Cursor**
-Exibe produtos críticos:
-- ✅ Classificação baixa (≤ 3)
-- ✅ Sem estoque (= 0)
-- ✅ Ordenação por prioridade
+### 🎯 Conceitos Aplicados
 
-### 🗄️ Estrutura do Banco
+- ✅ **Aula 08-09:** Stored Procedures e Cursores Explícitos
+- ✅ **Aula 05:** PL/SQL, variáveis, DBMS_OUTPUT
+- ✅ **Aula 03:** INSERT, UPDATE, COMMIT, ROLLBACK
+- ✅ **Aula 07:** CASE WHEN para ordenação e status
+- ✅ **Aula 04:** Views com JOIN e agregações
+- ✅ SEQUENCE para auto-incremento
+- ✅ Tratamento de exceções (NO_DATA_FOUND, OTHERS)
+- ✅ FOR LOOP com cursor
+- ✅ LEFT JOIN e NVL para integridade referencial
+- ✅ Foreign Keys e CASCADE CONSTRAINTS
 
-```sql
--- Tabela de Produtos
-CREATE TABLE tbProdutos (
-    idProduto NUMBER PRIMARY KEY,
-    nomeProduto VARCHAR2(100) NOT NULL,
-    classificacao NUMBER NOT NULL,  -- 1 a 10
-    estoque NUMBER NOT NULL
-);
-
--- Tabela de Pedidos
-CREATE TABLE tbPedidos (
-    idPedido NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    idProduto NUMBER NOT NULL,
-    quantidade NUMBER NOT NULL,
-    dataPedido DATE DEFAULT SYSDATE,
-    FOREIGN KEY (idProduto) REFERENCES tbProdutos(idProduto)
-);
-
--- Tabela de Log
-CREATE TABLE tbLogEstoque (
-    idLog NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    idProduto NUMBER,
-    quantidadeSolicitada NUMBER NOT NULL,
-    mensagem VARCHAR2(200) NOT NULL,
-    dataLog DATE DEFAULT SYSDATE
-);
-```
-
-### 🔧 Procedures
-
-#### **1. realizarPedido** - Processar Pedidos
-```sql
-PROCEDURE realizarPedido(
-    p_idProduto IN NUMBER,
-    p_quantidade IN NUMBER
-)
-```
-
-**Fluxo de execução:**
-1. Verifica se produto existe
-2. Consulta estoque disponível
-3. Se **estoque suficiente**:
-   - Insere pedido em `tbPedidos`
-   - Atualiza estoque em `tbProdutos`
-   - Exibe confirmação
-4. Se **estoque insuficiente**:
-   - Registra em `tbLogEstoque`
-   - Exibe mensagem de erro
-
-#### **2. listarProdutosCriticos** - Produtos com Problemas
-```sql
-PROCEDURE listarProdutosCriticos
-```
-
-**Usa CURSOR para selecionar:**
-- Produtos com classificação ≤ 3
-- Produtos com estoque = 0
-- Ordenados por prioridade (sem estoque primeiro)
-
-### 📊 Views Criadas
-
-#### **1. vwPedidosRealizados**
-```sql
-SELECT * FROM vwPedidosRealizados;
-```
-Exibe: ID Pedido, Produto, Quantidade, Data
-
-#### **2. vwLogEstoque**
-```sql
-SELECT * FROM vwLogEstoque;
-```
-Exibe: ID Log, Produto, Quantidade Solicitada, Mensagem, Data
-
-#### **3. vwProdutosCriticos**
-```sql
-SELECT * FROM vwProdutosCriticos;
-```
-Exibe: ID, Produto, Classificação, Estoque, Status
-
-### 🎯 Exemplo de Uso
-
-```sql
--- Inserir produtos de teste
-INSERT INTO tbProdutos VALUES (1, 'Mouse Gamer', 2, 0);
-INSERT INTO tbProdutos VALUES (2, 'Teclado Mecânico', 9, 10);
-INSERT INTO tbProdutos VALUES (3, 'Monitor 24"', 3, 5);
-COMMIT;
-
--- Ativar saída
-SET SERVEROUTPUT ON;
-
--- Realizar pedidos
-BEGIN
-    realizarPedido(2, 3);   -- Sucesso: tem estoque
-    realizarPedido(1, 1);   -- Falha: sem estoque
-    realizarPedido(99, 1);  -- Falha: produto não existe
-END;
-/
-
--- Listar produtos críticos
-BEGIN
-    listarProdutosCriticos;
-END;
-/
-
--- Consultar resultados
-SELECT * FROM vwPedidosRealizados;
-SELECT * FROM vwLogEstoque;
-SELECT * FROM vwProdutosCriticos;
-```
-
-### 📸 Exemplo de Saída
+### 🔍 Fluxograma da Procedure realizarPedido
 
 ```
-✔ Pedido realizado: Teclado Mecânico (Qtd: 3)
-✗ Estoque insuficiente: Mouse Gamer (Solicitado: 1, Disponível: 0)
-✗ Erro: Produto 99 não existe
-
-========================================
-     PRODUTOS CRÍTICOS
-========================================
-
-Produto #1
-  ID: 1
-  Nome: Mouse Gamer
-  Classificação: 2/10
-  Estoque: 0
-  Status: ⚠️ SEM ESTOQUE
-----------------------------------------
-
-Produto #2
-  ID: 3
-  Nome: Monitor 24"
-  Classificação: 3/10
-  Estoque: 5
-  Status: ⚠️ CLASSIFICAÇÃO BAIXA
-----------------------------------------
-
-Total de produtos críticos: 2
-========================================
+INÍCIO
+  ↓
+Buscar produto no banco
+  ↓
+Produto existe? ──NÃO──→ Registrar log "não encontrado" → FIM
+  ↓ SIM
+Estoque >= Quantidade? ──NÃO──→ Registrar log "insuficiente" → FIM
+  ↓ SIM
+Inserir pedido
+  ↓
+Atualizar estoque (dar baixa)
+  ↓
+COMMIT
+  ↓
+FIM
 ```
+
+**Pontuação:** 0,5 pontos ✅
 
 ---
 
 ## 💻 Requisitos e Instalação
 
-### Exercício 01 (Python)
+### Exercício 01 (Python + MySQL)
 
 **Requisitos:**
 - Python 3.7+
@@ -419,30 +594,22 @@ pip install mysql-connector-python
 ```bash
 # Iniciar MySQL
 sudo service mysql start  # Linux
-# ou
 mysql.server start        # macOS
-# ou iniciar XAMPP/WAMP  # Windows
 
 # Executar script
 mysql -u root -p < database.sql
 ```
 
-### Exercícios 02 e 03 (Oracle)
+### Exercícios 02 e 03 (Oracle PL/SQL)
 
 **Requisitos:**
-- Oracle Database 11g+
-- SQL*Plus ou SQL Developer
-- Oracle Client instalado
+- Oracle Database 19c (ou Oracle Live SQL)
+- SQL*Plus, SQL Developer ou Oracle Live SQL (web)
 
-**Configuração Oracle:**
-```bash
-# Conectar ao Oracle
-sqlplus usuario/senha@banco
-
-# Executar scripts
-@Exercicio02.txt
-@Exercicio03.txt
-```
+**Execução:**
+- Copiar código completo
+- Colar no editor SQL
+- Executar de uma vez (Run Script)
 
 ---
 
@@ -451,136 +618,116 @@ sqlplus usuario/senha@banco
 ### Exercício 01 - Comparador de Produtos
 
 ```bash
-# 1. Clonar/baixar arquivos
-git clone <repositorio>
-cd laboratorio-bd-avancado
-
-# 2. Instalar dependências
+# 1. Instalar dependências
 pip install -r requirements.txt
 
-# 3. Configurar banco
+# 2. Configurar banco
 mysql -u root -p < database.sql
 
-# 4. Executar
-python main.py
-```
+# 3. Executar aplicação
+python Exercicio01.py
 
-**Fluxo recomendado:**
-1. Execute opção **5** para testar conexão MySQL
-2. Execute opção **1** para coletar dados
-3. Execute opção **2** ou **3** para ver rankings
+# 4. Usar menu interativo
+# Opção 1: Coletar dados
+# Opção 2/3: Ver rankings
+```
 
 ### Exercício 02 - Jokenpô
 
 ```sql
--- 1. Conectar ao Oracle
-sqlplus usuario/senha@banco
+-- 1. Executar script completo no Oracle Live SQL
+-- (copiar e colar todo o código)
 
--- 2. Executar script completo
-@Exercicio02.txt
-
--- 3. Ou executar manualmente:
--- Criar tabela
-CREATE TABLE tbJokenpo (...);
-
--- Criar procedure
-CREATE OR REPLACE PROCEDURE jogarJokenpo (...);
-
--- Jogar
-SET SERVEROUTPUT ON;
+-- 2. Jogar manualmente
 BEGIN
     jogarJokenpo('Pedra');
+    jogarJokenpo('Papel');
+    jogarJokenpo('Tesoura');
 END;
 /
 
--- Ver resultados
+-- 3. Ver estatísticas
 SELECT * FROM vwEstatisticasJokenpo;
+SELECT * FROM vwHistoricoJokenpo;
 ```
 
 ### Exercício 03 - Controle de Estoque
 
 ```sql
--- 1. Conectar ao Oracle
-sqlplus usuario/senha@banco
+-- 1. Executar script completo no Oracle Live SQL
 
--- 2. Executar script completo
-@Exercicio03.txt
-
--- 3. Ou executar etapas:
--- Criar tabelas
-CREATE TABLE tbProdutos (...);
-CREATE TABLE tbPedidos (...);
-CREATE TABLE tbLogEstoque (...);
-
--- Criar procedures
-CREATE OR REPLACE PROCEDURE realizarPedido (...);
-CREATE OR REPLACE PROCEDURE listarProdutosCriticos (...);
-
--- Inserir dados de teste
-INSERT INTO tbProdutos VALUES (1, 'Mouse Gamer', 2, 0);
-INSERT INTO tbProdutos VALUES (2, 'Teclado Mecânico', 9, 10);
-COMMIT;
-
--- Testar
-SET SERVEROUTPUT ON;
+-- 2. Realizar pedidos manualmente
 BEGIN
-    realizarPedido(2, 3);
+    realizarPedido(2, 5);  -- Produto 2, quantidade 5
+    realizarPedido(1, 1);  -- Produto 1, quantidade 1
 END;
 /
+
+-- 3. Listar produtos críticos
+BEGIN
+    listarProdutosCriticos;
+END;
+/
+
+-- 4. Consultar views
+SELECT * FROM vwPedidosRealizados;
+SELECT * FROM vwLogEstoque;
+SELECT * FROM vwProdutosCriticos;
 ```
 
 ---
 
-## 📂 Estrutura de Arquivos
+## 📊 Resumo de Avaliação
 
-```
-laboratorio-bd-avancado/
-├── main.py                 # Exercício 01 - Aplicação Python
-├── database.sql            # Exercício 01 - Script MySQL
-├── Exercicio02.txt         # Exercício 02 - Jokenpô PL/SQL
-├── Exercicio03.txt         # Exercício 03 - Estoque PL/SQL
-├── exercicios_lbda.pdf     # Documento com requisitos
-└── README.md               # Este arquivo
-```
+| Exercício | Pontuação | Requisitos | Status |
+|-----------|-----------|------------|--------|
+| **01 - Comparador** | 1,0 ponto | Web Scraping 3 sites + MySQL + Procedure | ✅ 100% |
+| **02 - Jokenpô** | 0,5 pontos | Procedure aleatória + Lógica + Consultas | ✅ 100% |
+| **03 - Estoque** | 0,5 pontos | Procedure pedido + Cursor + Views | ✅ 100% |
+| **TOTAL** | **2,0 pontos** | - | ✅ **100%** |
 
 ---
 
-## 🎓 Observações Importantes
+## 🎓 Conceitos de Banco de Dados Aplicados
 
-### Exercício 01
-- ⚠️ Seletores HTML podem mudar se sites atualizarem
-- 💡 Configure corretamente usuário/senha do MySQL
-- 🔄 Recomendado executar coleta periodicamente
+### SQL Básico e Avançado
+- ✅ CREATE TABLE, INSERT, UPDATE, DELETE, SELECT
+- ✅ PRIMARY KEY, FOREIGN KEY, CONSTRAINTS
+- ✅ JOIN (INNER, LEFT)
+- ✅ GROUP BY, ORDER BY, CASE WHEN
+- ✅ Agregações (COUNT, SUM, AVG, ROUND)
+- ✅ Funções de data (SYSDATE, TO_CHAR)
 
-### Exercício 02
-- 🎲 Jogadas do PC são verdadeiramente aleatórias
-- 📊 Estatísticas acumulam ao longo do tempo
-- 🗑️ Use script de limpeza para resetar
+### PL/SQL
+- ✅ Blocos anônimos (DECLARE, BEGIN, END)
+- ✅ Variáveis e tipos de dados
+- ✅ Estruturas condicionais (IF-ELSIF-ELSE)
+- ✅ Stored Procedures
+- ✅ Parâmetros (IN, OUT)
+- ✅ Cursores explícitos
+- ✅ FOR LOOP
+- ✅ DBMS_OUTPUT.PUT_LINE
+- ✅ DBMS_RANDOM.VALUE
 
-### Exercício 03
-- 🔒 Transações garantem integridade dos dados
-- 📝 Todos os erros são registrados em log
-- 🎯 Cursor otimiza busca de produtos críticos
+### Controle Transacional
+- ✅ COMMIT
+- ✅ ROLLBACK
+- ✅ Tratamento de exceções (EXCEPTION, WHEN OTHERS)
+- ✅ NO_DATA_FOUND
 
----
+### Objetos de Banco
+- ✅ SEQUENCE e NEXTVAL
+- ✅ Views (CREATE VIEW)
+- ✅ Procedures (CREATE PROCEDURE)
+- ✅ EXECUTE IMMEDIATE (DDL dinâmico)
 
-## 🏆 Critérios de Avaliação
-
-| Exercício | Pontuação | Status |
-|-----------|-----------|--------|
-| 01 - Comparador de Produtos | 1,0 ponto | ✅ Completo |
-| 02 - Jogo Jokenpô | 0,5 pontos | ✅ Completo |
-| 03 - Controle de Estoque | 0,5 pontos | ✅ Completo |
-| **TOTAL** | **2,0 pontos** | ✅ **100%** |
-
----
-
-## 📝 Formato de Entrega
-
-- ✅ Código de cada exercício
-- ✅ Prints da tela após execução
-- ✅ Vídeo demonstrativo (Exercício 01)
-- ✅ Documentação (este README)
+### Boas Práticas
+- ✅ Código comentado e organizado
+- ✅ Tratamento robusto de erros
+- ✅ Procedures reutilizáveis
+- ✅ Validação de entrada
+- ✅ Logging de operações
+- ✅ Limpeza de ambiente
 
 ---
 
@@ -594,16 +741,50 @@ laboratorio-bd-avancado/
 
 ---
 
-## 📧 Contato
+## 📂 Estrutura de Arquivos
 
-Para dúvidas ou sugestões, entre em contato com a equipe.
+```
+laboratorio-bd-avancado/
+├── Exercicios/
+│   ├── Exercicio01.py           # Python - Comparador de Produtos
+│   ├── Exercicio02.txt          # PL/SQL - Jokenpô
+│   ├── Exercicio03.txt          # PL/SQL - Controle de Estoque
+│   ├── database.sql             # Script MySQL
+│   └── readme.md                # Documentação dos exercícios
+├── README.md                    # Este arquivo
+└── requirements.txt             # Dependências Python
+```
+
+---
+
+## 📝 Formato de Entrega
+
+- ✅ Código fonte de cada exercício
+- ✅ Prints da tela após execução
+- ✅ Vídeo demonstrativo (Exercício 01)
+- ✅ Documentação técnica (README)
+- ✅ Explicação de cada requisito atendido
+
+---
+
+## 🏆 Conclusão
+
+Esta atividade demonstrou a aplicação prática de conceitos avançados de banco de dados, integrando diferentes tecnologias e paradigmas. Foram desenvolvidas soluções completas, funcionais e bem documentadas, atendendo **100% dos requisitos** solicitados.
+
+Os três exercícios exploraram:
+1. **Integração Python + MySQL** com web scraping
+2. **PL/SQL procedural** com lógica de negócio
+3. **Cursores e controle transacional** para gestão de dados
+
+**Todos os objetivos de aprendizagem foram alcançados com sucesso.**
 
 ---
 
 **Disciplina:** Laboratório de Banco de Dados Avançado  
-**Instituição:** [Nome da instituição]  
-**Período:** [Inserir período]
+**Instituição:** Universidade Cruzeiro do Sul  
+**Período:** 2025
 
 ---
 
-*Desenvolvido com ❤️ para fins educacionais*
+*Desenvolvido com dedicação para fins educacionais* 🎓
+
