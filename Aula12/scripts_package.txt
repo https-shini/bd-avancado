@@ -1,0 +1,71 @@
+create table DEPARTMENTS (  
+  deptno        number,  
+  name          varchar2(50) not null,  
+  location      varchar2(50),  
+  constraint pk_departments primary key (deptno)  
+);
+
+
+create or replace package pkg_exemplo as
+--
+    PROCEDURE exibir_mensagem;
+	PROCEDURE exibir_valor_constante;
+    PROCEDURE remove_department (numeroDepto NUMBER);	
+	PROCEDURE insert_department(var_numero number,var_nome varchar2,var_localizacao varchar);	
+
+	--Declaração de constante
+	CONST_AUMENTO CONSTANT NUMBER := 10;
+--
+end;
+
+create or replace package body pkg_exemplo as
+--
+    procedure exibir_mensagem as 
+    begin
+       	DBMS_OUTPUT.PUT_LINE('Hello World!');
+    end;
+
+	procedure exibir_valor_constante as 
+    begin
+       	DBMS_OUTPUT.PUT_LINE('Valor da constante autmento: ' || CONST_AUMENTO);
+    end;
+    
+    --criação de uma procedure com a utilização de parâmetro
+    PROCEDURE remove_department (numeroDepto NUMBER) AS   
+    BEGIN
+      DELETE FROM departments
+      WHERE deptno = numeroDepto;   
+    END;
+
+	--criação de uma procedure para inserção de dados
+	PROCEDURE insert_department(var_numero number,var_nome varchar2,var_localizacao varchar) as
+	BEGIN
+        --validações para inserção	
+		insert into departments values(var_numero,var_nome,var_localizacao);
+    END;
+--
+end;
+
+begin
+	pkg_exemplo.exibir_mensagem;
+	pkg_exemplo.exibir_valor_constante;
+	pkg_exemplo.insert_department(1,'RH','São Paulo');
+	pkg_exemplo.insert_department(2,'Financeiro','São Paulo');
+	pkg_exemplo.remove_department(1);
+	pkg_exemplo.remove_department(2);
+end;
+
+select * from departments;
+
+
+-- exemplo de pl/sql com insert
+declare
+    var_numero number := 2;
+	var_nome varchar2(50) := 'RH';
+	var_localizacao varchar2(50) := 'São Paulo';
+begin
+	insert into departments values (var_numero, var_nome, var_localizacao);
+	dbms_output.put_line('Departamento ' || var_nome || ' incluído com sucesso.');
+end;
+
+select * from departments;

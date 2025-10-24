@@ -1,0 +1,24 @@
+Exemplo transação:
+
+create database bdExemploTransacao;
+
+use bdExemploTransacao;
+
+create table tbContato(
+    idContato int primary key auto_increment,
+    nomeContato varchar(40),
+    emailContato varchar(40)
+);
+
+insert into tbContato values (null, 'João','joao@gmail.com');
+insert into tbContato values (null, 'ana','ana@gmail.com');
+
+select * from tbContato;
+
+start transaction;
+
+delete from tbContato where idContato >=1;
+
+rollback;
+
+commit;
