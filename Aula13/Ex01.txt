@@ -1,0 +1,128 @@
+-- Habilita a saída de mensagens (necessário para verificação)
+SET SERVEROUTPUT ON;
+
+-- ============================================================
+-- 1. LIMPEZA DO AMBIENTE (IGNORA ERROS SE OBJETOS NÃO EXISTIREM)
+-- ============================================================
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TRIGGER trg_auditar_cliente';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE tbLogCliente CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE tbUsuario CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE tbCliente CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+-- ============================================================
+-- 2. CRIAÇÃO DAS TABELAS BASE
+-- ============================================================
+CREATE TABLE tbCliente(
+    idCliente NUMBER GENERATED ALWAYS AS IDENTITY primary key,
+    nomeCliente varchar2(50),
+    dataNasc date
+);
+
+CREATE TABLE tbUsuario(
+    idUsuario NUMBER GENERATED ALWAYS AS IDENTITY primary key,
+    nomeUsuario varchar2(50),
+    senhaUsuario varchar2(40)
+);
+
+CREATE TABLE tbLogCliente(
+    idLogCli NUMBER GENERATED ALWAYS AS IDENTITY primary key,
+    idCliente number,
+    idUsuario number, -- O idUsuario deve ser preenchido por quem executa a DML (simulação)
+    rotina varchar2(40), -- Ex: 'INSERT', 'UPDATE', 'DELETE'
+    dataOperacao DATE DEFAULT SYSDATE
+);
+
+-- ============================================================
+-- 3. CRIAÇÃO DA TRIGGER DE AUDITORIA
+-- Requisito 1: Salvar dados no tbLogCliente ao inserir, alterar ou excluir
+-- ============================================================
+CREATE OR REPLACE TRIGGER trg_auditar_cliente
+-- Dispara após qualquer operação de DML (INSERT, UPDATE, DELETE) na tabela tbCliente
+AFTER INSERT OR UPDATE OR DELETE ON tbCliente
+-- Dispara a trigger para cada linha afetada pela operação
+FOR EACH ROW
+DECLARE
+    v_rotina VARCHAR2(40);
+    -- Variável simulando o ID do usuário logado no sistema que faz a alteração
+    -- Em um sistema real, este valor seria recuperado de uma variável de sessão.
+    v_id_usuario CONSTANT NUMBER := 1; 
+BEGIN
+    -- Define o nome da rotina baseada no tipo de operação que disparou a trigger
+    IF INSERTING THEN
+        v_rotina := 'INSERT';
+    ELSIF UPDATING THEN
+        v_rotina := 'UPDATE';
+    ELSIF DELETING THEN
+        v_rotina := 'DELETE';
+    END IF;
+
+    -- Insere o registro de auditoria na tabela tbLogCliente
+    -- Utiliza :NEW.idCliente para INSERT e :OLD.idCliente para UPDATE/DELETE
+    INSERT INTO tbLogCliente (idCliente, idUsuario, rotina)
+    VALUES (
+        CASE 
+            WHEN INSERTING THEN :NEW.idCliente -- Se for INSERT, usa o novo ID
+            ELSE :OLD.idCliente              -- Se for UPDATE/DELETE, usa o ID existente
+        END,
+        v_id_usuario,
+        v_rotina
+    );
+END;
+/
+
+-- ============================================================
+-- 4. TESTES E VERIFICAÇÃO
+-- ============================================================
+
+-- Inserção de um usuário (simulando o usuário logado)
+INSERT INTO tbUsuario (nomeUsuario, senhaUsuario) VALUES ('AdminTest', '12345');
+COMMIT;
+
+-- Teste 1: INSERT (Deve disparar a trigger e registrar 'INSERT' no log)
+INSERT INTO tbCliente (nomeCliente, dataNasc) VALUES ('João Silva', SYSDATE - 1000);
+INSERT INTO tbCliente (nomeCliente, dataNasc) VALUES ('Maria Souza', SYSDATE - 800);
+COMMIT;
+
+DBMS_OUTPUT.PUT_LINE('--- Após 2 INSERTS: ---');
+SELECT * FROM tbLogCliente;
+
+-- Teste 2: UPDATE (Deve disparar a trigger e registrar 'UPDATE' no log)
+UPDATE tbCliente SET nomeCliente = 'João Silva Editado' WHERE idCliente = 1;
+COMMIT;
+
+DBMS_OUTPUT.PUT_LINE('--- Após 1 UPDATE: ---');
+SELECT * FROM tbLogCliente;
+
+-- Teste 3: DELETE (Deve disparar a trigger e registrar 'DELETE' no log)
+DELETE FROM tbCliente WHERE idCliente = 2;
+COMMIT;
+
+DBMS_OUTPUT.PUT_LINE('--- Após 1 DELETE: ---');
+SELECT * FROM tbLogCliente;
+
+-- Visualiza a tabela de clientes final
+DBMS_OUTPUT.PUT_LINE('--- Tabela tbCliente Final: ---');
+SELECT * FROM tbCliente;
