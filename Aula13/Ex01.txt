@@ -1,16 +1,18 @@
--- Habilita a saída de mensagens (necessário para verificação)
-SET SERVEROUTPUT ON;
+-- ============================================================
+-- 1. BLOCO DE LIMPEZA DO AMBIENTE (IDEMPOTÊNCIA)
+-- Conceito: Processamento de Transações / Boas Práticas (DELETE/DROP)
+-- Esta seção garante que o script possa ser executado múltiplas vezes.
+-- ============================================================
 
--- ============================================================
--- 1. LIMPEZA DO AMBIENTE (IGNORA ERROS SE OBJETOS NÃO EXISTIREM)
--- ============================================================
+-- Remove o TRIGGER primeiro, pois ele depende da tabela tbCliente.
 BEGIN
     EXECUTE IMMEDIATE 'DROP TRIGGER trg_auditar_cliente';
 EXCEPTION
-    WHEN OTHERS THEN NULL;
+    WHEN OTHERS THEN NULL; -- Ignora o erro se o trigger não existir.
 END;
 /
 
+-- Remove a tabela de Log (tbLogCliente).
 BEGIN
     EXECUTE IMMEDIATE 'DROP TABLE tbLogCliente CASCADE CONSTRAINTS';
 EXCEPTION
@@ -18,6 +20,7 @@ EXCEPTION
 END;
 /
 
+-- Remove a tabela de Usuários (tbUsuario).
 BEGIN
     EXECUTE IMMEDIATE 'DROP TABLE tbUsuario CASCADE CONSTRAINTS';
 EXCEPTION
@@ -25,6 +28,7 @@ EXCEPTION
 END;
 /
 
+-- Remove a tabela de Clientes (tbCliente).
 BEGIN
     EXECUTE IMMEDIATE 'DROP TABLE tbCliente CASCADE CONSTRAINTS';
 EXCEPTION
@@ -33,75 +37,85 @@ END;
 /
 
 -- ============================================================
--- 2. CRIAÇÃO DAS TABELAS BASE
+-- 2. CRIAÇÃO DAS TABELAS BASE (DDL)
+-- Conceito: SQL Avançado / Geração de Identidade
 -- ============================================================
+
+-- Tabela de Clientes.
 CREATE TABLE tbCliente(
+    -- Chave Primária com auto-incremento (IDENTITY).
     idCliente NUMBER GENERATED ALWAYS AS IDENTITY primary key,
     nomeCliente varchar2(50),
     dataNasc date
 );
 
+-- Tabela de Usuários (simula quem está logado).
 CREATE TABLE tbUsuario(
     idUsuario NUMBER GENERATED ALWAYS AS IDENTITY primary key,
     nomeUsuario varchar2(50),
     senhaUsuario varchar2(40)
 );
 
+-- Tabela de Log para registrar as operações de auditoria.
 CREATE TABLE tbLogCliente(
     idLogCli NUMBER GENERATED ALWAYS AS IDENTITY primary key,
-    idCliente number,
-    idUsuario number, -- O idUsuario deve ser preenchido por quem executa a DML (simulação)
-    rotina varchar2(40), -- Ex: 'INSERT', 'UPDATE', 'DELETE'
+    idCliente number, -- Qual cliente foi afetado.
+    idUsuario number, -- Quem fez a operação (simulado).
+    rotina varchar2(40), -- Tipo de operação (INSERT, UPDATE, DELETE).
     dataOperacao DATE DEFAULT SYSDATE
 );
 
 -- ============================================================
 -- 3. CRIAÇÃO DA TRIGGER DE AUDITORIA
--- Requisito 1: Salvar dados no tbLogCliente ao inserir, alterar ou excluir
+-- Conceito: Triggers (Definição, Codificação e Restrições) / PL/SQL
 -- ============================================================
 CREATE OR REPLACE TRIGGER trg_auditar_cliente
--- Dispara após qualquer operação de DML (INSERT, UPDATE, DELETE) na tabela tbCliente
+-- Dispara DEPOIS da execução de qualquer comando DML na tabela tbCliente.
 AFTER INSERT OR UPDATE OR DELETE ON tbCliente
--- Dispara a trigger para cada linha afetada pela operação
+-- O trigger é disparado para cada linha afetada.
 FOR EACH ROW
 DECLARE
+    -- Variáveis locais para armazenar o tipo de operação e o ID a ser logado.
     v_rotina VARCHAR2(40);
-    -- Variável simulando o ID do usuário logado no sistema que faz a alteração
-    -- Em um sistema real, este valor seria recuperado de uma variável de sessão.
-    v_id_usuario CONSTANT NUMBER := 1; 
+    v_id_cliente NUMBER;
+    -- Constante para simular o ID do usuário logado (AdminTest = 1).
+    v_id_usuario CONSTANT NUMBER := 1;
 BEGIN
-    -- Define o nome da rotina baseada no tipo de operação que disparou a trigger
+    -- Estrutura de controle PL/SQL para identificar a operação (IF-ELSIF-ELSE).
     IF INSERTING THEN
         v_rotina := 'INSERT';
+        -- Para INSERT, usa-se :NEW para obter o ID recém-criado.
+        v_id_cliente := :NEW.idCliente;
     ELSIF UPDATING THEN
         v_rotina := 'UPDATE';
+        -- Para UPDATE, usa-se :OLD para obter o ID existente (antes da mudança).
+        v_id_cliente := :OLD.idCliente;
     ELSIF DELETING THEN
         v_rotina := 'DELETE';
+        -- Para DELETE, usa-se :OLD para obter o ID que será removido.
+        v_id_cliente := :OLD.idCliente;
     END IF;
 
-    -- Insere o registro de auditoria na tabela tbLogCliente
-    -- Utiliza :NEW.idCliente para INSERT e :OLD.idCliente para UPDATE/DELETE
+    -- Comando INSERT dentro do Trigger para registrar a auditoria.
     INSERT INTO tbLogCliente (idCliente, idUsuario, rotina)
     VALUES (
-        CASE 
-            WHEN INSERTING THEN :NEW.idCliente -- Se for INSERT, usa o novo ID
-            ELSE :OLD.idCliente              -- Se for UPDATE/DELETE, usa o ID existente
-        END,
-        v_id_usuario,
-        v_rotina
+        v_id_cliente, -- ID do cliente auditado.
+        v_id_usuario, -- ID do usuário (simulado).
+        v_rotina      -- Tipo de operação.
     );
 END;
 /
 
 -- ============================================================
--- 4. TESTES E VERIFICAÇÃO
+-- 4. TESTES E VERIFICAÇÃO (DML e Consultas)
+-- Conceito: DML / Processamento de Transações (COMMIT)
 -- ============================================================
 
--- Inserção de um usuário (simulando o usuário logado)
+-- Insere o usuário que será logado como o responsável pela auditoria.
 INSERT INTO tbUsuario (nomeUsuario, senhaUsuario) VALUES ('AdminTest', '12345');
 COMMIT;
 
--- Teste 1: INSERT (Deve disparar a trigger e registrar 'INSERT' no log)
+-- Teste 1: INSERT (Dispara o trigger duas vezes, registrando 'INSERT' no log).
 INSERT INTO tbCliente (nomeCliente, dataNasc) VALUES ('João Silva', SYSDATE - 1000);
 INSERT INTO tbCliente (nomeCliente, dataNasc) VALUES ('Maria Souza', SYSDATE - 800);
 COMMIT;
@@ -109,20 +123,21 @@ COMMIT;
 DBMS_OUTPUT.PUT_LINE('--- Após 2 INSERTS: ---');
 SELECT * FROM tbLogCliente;
 
--- Teste 2: UPDATE (Deve disparar a trigger e registrar 'UPDATE' no log)
+-- Teste 2: UPDATE (Dispara o trigger uma vez, registrando 'UPDATE' no log).
 UPDATE tbCliente SET nomeCliente = 'João Silva Editado' WHERE idCliente = 1;
 COMMIT;
 
 DBMS_OUTPUT.PUT_LINE('--- Após 1 UPDATE: ---');
 SELECT * FROM tbLogCliente;
 
--- Teste 3: DELETE (Deve disparar a trigger e registrar 'DELETE' no log)
+-- Teste 3: DELETE (Dispara o trigger uma vez, registrando 'DELETE' no log).
 DELETE FROM tbCliente WHERE idCliente = 2;
 COMMIT;
 
 DBMS_OUTPUT.PUT_LINE('--- Após 1 DELETE: ---');
 SELECT * FROM tbLogCliente;
 
--- Visualiza a tabela de clientes final
+-- Visualiza a tabela final de clientes para confirmar as alterações.
 DBMS_OUTPUT.PUT_LINE('--- Tabela tbCliente Final: ---');
 SELECT * FROM tbCliente;
+
