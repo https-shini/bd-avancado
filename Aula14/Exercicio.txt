@@ -1,0 +1,81 @@
+-- CRIAÇÃO DA TABELA DE TESTE
+CREATE TABLE tbTeste (
+    -- ID Gerado Automaticamente
+    id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY, 
+    descricao VARCHAR2(100),
+    data_registro DATE DEFAULT SYSDATE
+);
+
+-- Inserção inicial sem especificar o ID
+INSERT INTO tbTeste (descricao) VALUES ('Registro de Segunda-feira');
+COMMIT;
+
+-- CRIAÇÃO DO TRIGGER DE RESTRIÇÃO
+-- Bloqueia qualquer DML (INSERT, UPDATE, DELETE) na Quinta-feira.
+CREATE OR REPLACE TRIGGER trg_bloqueio_quinta
+BEFORE INSERT OR UPDATE OR DELETE ON tbTeste
+DECLARE
+    v_dia_semana VARCHAR2(3);
+    v_msg_erro   CONSTANT VARCHAR2(100) := 'Operações DML estão bloqueadas na Quinta-feira!';
+    v_cod_erro   CONSTANT NUMBER := -20002;
+BEGIN
+    -- Obtém o dia da semana atual em português.
+    SELECT TRIM(TO_CHAR(SYSDATE, 'DY', 'NLS_DATE_LANGUAGE=PORTUGUESE'))
+    INTO v_dia_semana
+    FROM DUAL;
+
+    -- Lógica de bloqueio: se for Quinta-feira ('QUI'), lança o erro.
+    IF UPPER(v_dia_semana) = 'QUI' THEN
+        RAISE_APPLICATION_ERROR(v_cod_erro, v_msg_erro);
+    END IF;
+    
+    -- Se não for Quinta-feira, a operação prossegue.
+END;
+/
+
+-- Teste 1: Tenta Inserir (O ID é gerado automaticamente)
+BEGIN
+    INSERT INTO tbTeste (descricao) VALUES ('Tentativa de Inserção');
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('SUCESSO: Inserção executada.');
+EXCEPTION
+    WHEN OTHERS THEN
+        IF SQLCODE = -20002 THEN
+            DBMS_OUTPUT.PUT_LINE('FALHA: ' || SQLERRM);
+        ELSE
+            RAISE;
+        END IF;
+END;
+/
+
+-- Teste 2: Tenta Atualizar (Assume que o ID=1 é o registro inicial)
+BEGIN
+    UPDATE tbTeste SET descricao = 'Registro Editado' WHERE id = 1;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('SUCESSO: Atualização executada.');
+EXCEPTION
+    WHEN OTHERS THEN
+        IF SQLCODE = -20002 THEN
+            DBMS_OUTPUT.PUT_LINE('FALHA: ' || SQLERRM);
+        ELSE
+            RAISE;
+        END IF;
+END;
+/
+
+-- Teste 3: Tenta Excluir (Remove o registro inicial)
+BEGIN
+    DELETE FROM tbTeste WHERE id = 1;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('SUCESSO: Exclusão executada.');
+EXCEPTION
+    WHEN OTHERS THEN
+        IF SQLCODE = -20002 THEN
+            DBMS_OUTPUT.PUT_LINE('FALHA: ' || SQLERRM);
+        ELSE
+            RAISE;
+        END IF;
+END;
+/
+
+

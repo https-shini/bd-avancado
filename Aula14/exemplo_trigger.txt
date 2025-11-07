@@ -1,0 +1,31 @@
+create table tbConta(
+    idConta number GENERATED ALWAYS AS 
+    IDENTITY (START WITH 1 INCREMENT BY 1)primary key,
+    numeroConta varchar(10),
+    saldo floatS
+);
+
+insert into tbConta values(default,'111',5000);
+insert into tbConta values(default,'112',-100);
+insert into tbConta values(default,'113',200);
+insert into tbConta values(default,'114',15000);
+insert into tbConta values(default,'115',2000);
+
+select * from tbConta;
+
+create or replace trigger trg_saldo_insuficiente
+before update on tbConta
+for each row
+declare
+    v_saldo float;
+    
+begin
+	if :new.saldo < 0 then
+		raise_application_error(-20001,'Saldo Insuficiente');
+
+    end if;
+end;
+
+
+update tbConta set saldo = (saldo + 100) where idConta = 1;
+
