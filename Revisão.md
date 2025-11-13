@@ -1,10 +1,6 @@
 # Laboratório de Banco de Dados Avançado
 ## Guia Teórico Completo - Análise e Revisão Geral
 
-**Professor:** Allan Vidal (allan@cruzeirodosul.edu.br)  
-**Disciplina:** Análise e Desenvolvimento de Sistemas / Ciência da Computação  
-**Plataforma:** Oracle Live SQL (https://livesql.oracle.com/)
-
 ---
 
 ## 📚 ESTRUTURA GERAL DA DISCIPLINA
