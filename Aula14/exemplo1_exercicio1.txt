@@ -1,0 +1,86 @@
+create table tbConta(
+    idConta number GENERATED ALWAYS AS 
+    IDENTITY (START WITH 1 INCREMENT BY 1)primary key,
+    numeroConta varchar(10),
+    saldo floatS
+);
+
+insert into tbConta values(default,'111',5000);
+insert into tbConta values(default,'112',-100);
+insert into tbConta values(default,'113',200);
+insert into tbConta values(default,'114',15000);
+insert into tbConta values(default,'115',2000);
+
+select * from tbConta;
+
+create or replace trigger trg_saldo_insuficiente
+before update on tbConta
+for each row
+declare
+    v_saldo float;
+    
+begin
+	if :new.saldo < 0 then
+		raise_application_error(-20001,'Saldo Insuficiente');
+
+    end if;
+end;
+
+
+update tbConta set saldo = (saldo + 100) where idConta = 1;
+
+
+-----------------------------------------------------------------------------------
+
+
+create table tbCliente(
+    idCliente number GENERATED ALWAYS AS IDENTITY primary key,
+    nomeCliente varchar2(50),
+    dateNasc date
+);
+
+create table tbUsuario(
+    idUsuario number GENERATED ALWAYS AS IDENTITY primary key,
+    nomeUsuario varchar2(50),
+    senhaUsuario varchar2(40)
+);
+
+create table tbLogCliente(
+    idLogCli number  GENERATED ALWAYS AS IDENTITY primary key,
+    idCliente number,
+    idUsuario number,
+    rotina varchar2(40), 
+    dataOperacao DATE DEFAULT SYSDATE       
+);
+
+insert into tbUsuario values(default,'Admin','123');
+insert into tbUsuario values(default,'Maria','123');
+
+
+CREATE OR REPLACE TRIGGER trg_log_cliente
+AFTER INSERT OR UPDATE OR DELETE ON tbCliente
+FOR EACH ROW
+DECLARE
+    v_operacao VARCHAR2(10);
+BEGIN
+    IF INSERTING THEN
+        v_operacao := 'INSERT';
+    ELSIF UPDATING THEN
+        v_operacao := 'UPDATE';
+    ELSIF DELETING THEN
+        v_operacao := 'DELETE';
+    END IF;
+
+    INSERT INTO tbLogCliente (idCliente, rotina, dataOperacao)
+    VALUES (
+        :new.idCliente,
+        v_operacao,
+        SYSDATE
+    );
+END;
+
+insert into tbCliente values(default, 'João da Silva',to_date('2000-10-01','yyyy-mm-dd'));
+
+select * from tbCliente;
+select * from tbLogCliente;
+
