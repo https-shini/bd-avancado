@@ -1,0 +1,54 @@
+-- Conectar-se como administrador (SYS ou SYSTEM)
+CONNECT SYSTEM/password;
+
+-- Criando um novo usuário
+CREATE USER aluno IDENTIFIED BY senha123456
+DEFAULT TABLESPACE users
+TEMPORARY TABLESPACE temp
+QUOTA 10M ON users;
+
+
+-- Permitir conexão
+GRANT CREATE SESSION TO aluno;
+
+-- Permitir criar objetos (exemplo: tabelas)
+GRANT CREATE TABLE TO aluno;
+
+-- Permitir criar e manipular visões
+GRANT CREATE VIEW TO aluno;
+
+
+-- Criar um papel
+CREATE ROLE role_analista;
+
+-- Conceder privilégios ao papel
+
+
+GRANT CREATE SESSION, CREATE TABLE, CREATE VIEW TO role_analista;
+
+-- Atribuir o papel ao usuário
+GRANT role_analista TO aluno;
+
+-- Conceder privilégios a outro usuário
+GRANT SELECT, INSERT ON produtos TO aluno;
+
+
+-- Revogar privilégios de objeto
+REVOKE INSERT ON produtos FROM aluno;
+
+-- Revogar papel
+REVOKE role_analista FROM aluno;
+
+-- Revogar privilégio de sistema
+REVOKE CREATE TABLE FROM aluno;
+
+
+-- Privilégios de sistema concedidos a usuários
+SELECT * FROM DBA_SYS_PRIVS WHERE GRANTEE = 'ALUNO';
+
+-- Privilégios de objetos
+SELECT * FROM DBA_TAB_PRIVS WHERE GRANTEE = 'ALUNO';
+
+-- Papéis concedidos
+SELECT * FROM DBA_ROLE_PRIVS WHERE GRANTEE = 'ALUNO';
+
